@@ -100,17 +100,17 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
   exact squashed match (`"Acme Corp"` ↔ `acme.com`) = 1.0; domain label contains all name tokens / name contains domain label = 0.9; acronym (`International Business Machines` ↔ `ibm.com`) = 0.85; Jaro-Winkler similarity of squashed strings (F23.StringSimilarity). Threshold `0.8`, configurable via `RelevanceOptions`.
 - [x] Unit tests: table-driven `[Theory]` for each value object and matcher rule, plus negative cases.
 
-## Phase 2 — Application layer (vertical slices)  ☐
-- [ ] Abstractions: `ICompanyRepository { AddAsync, GetByIdAsync, SearchAsync(CompanySearchCriteria) }` (returns domain objects, never EF types), `IWebsiteContentProvider { Task<WebsiteMetadata?> GetAsync(Uri, ct) }`, `IRelevanceEvaluator`.
-- [ ] `RelevanceEvaluator` (strategy chain): domain matcher, then on failure the content strategy (fetch title / `og:site_name` / `application-name`, then fuzzy match against those) → `RelevanceAssessment` with method `Domain` | `Content` and reason.
-- [ ] Shared: `PagedRequest(page=1,pageSize=20, max 100)`, `PagedResponse<T>(items,page,pageSize,totalCount)`.
-- [ ] Behaviors: `ValidationBehavior<TReq,TRes>` (FluentValidation → `ErrorOr` validation errors, no throwing) and `LoggingBehavior` (start/end/failure with request name + elapsed).
-- [ ] Slices (each folder = command/query + validator + handler + response DTO):
+## Phase 2 — Application layer (vertical slices)  ✅
+- [x] Abstractions: `ICompanyRepository { AddAsync, GetByIdAsync, SearchAsync(CompanySearchCriteria) }` (returns domain objects, never EF types), `IWebsiteContentProvider { Task<WebsiteMetadata?> GetAsync(Uri, ct) }`, `IRelevanceEvaluator`.
+- [x] `RelevanceEvaluator` (strategy chain): domain matcher, then on failure the content strategy (fetch title / `og:site_name` / `application-name`, then fuzzy match against those) → `RelevanceAssessment` with method `Domain` | `Content` and reason.
+- [x] Shared: `PagedRequest(page=1,pageSize=20, max 100)`, `PagedResponse<T>(items,page,pageSize,totalCount)`.
+- [x] Behaviors: `ValidationBehavior<TReq,TRes>` (FluentValidation → `ErrorOr` validation errors, no throwing) and `LoggingBehavior` (start/end/failure with request name + elapsed).
+- [x] Slices (each folder = command/query + validator + handler + response DTO):
   - `CreateCompany` → `ErrorOr<CompanyResponse>`; logs created/rejected (with relevance reason).
   - `GetCompanyById` → `ErrorOr<CompanyResponse>` (`Error.NotFound`).
   - `SearchCompanies(name?, domain?, q?, page, pageSize, sort?)`: `name` = case-insensitive partial match, `domain` = host/registrable-domain match, `q` = relevance search scored by `CompanySearchScorer` (Domain, pure: exact > prefix > token > fuzzy, over name + domain) and ordered by score desc. When `q` is absent, sort is `name|createdAt` asc/desc. An empty result returns 200 with `items: []`.
-- [ ] `CompanyResponse(Guid Id, string Name, string WebsiteUrl, string Domain, DateTimeOffset CreatedAt)` plus optional `Relevance` on search results. A manual mapping extension, no AutoMapper.
-- [ ] Unit tests: handlers with NSubstitute fakes, the validation behavior, scorer ordering.
+- [x] `CompanyResponse(Guid Id, string Name, string WebsiteUrl, string Domain, DateTimeOffset CreatedAt)` plus optional `Relevance` on search results. A manual mapping extension, no AutoMapper.
+- [x] Unit tests: handlers with NSubstitute fakes, the validation behavior, scorer ordering.
 
 ## Phase 3 — Infrastructure  ☐
 - [ ] `AppDbContext` (`internal`), `CompanyConfiguration` (value converters for `CompanyId`/`CompanyName`/`WebsiteUrl`, `RegistrableDomain` stored as a column so later SQL can index it).
@@ -158,3 +158,7 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 - Phase 1: the Public Suffix List is an **embedded resource** in Domain (`Resources/public_suffix_list.dat`, parsed once, lazily, by `Internet/PublicSuffix.cs`), so registrable-domain parsing does no runtime I/O. Refresh it by re-downloading the file.
 - Phase 1: `CompanySearchScorer`, `NameDomainMatcher` and `ContentMatcher` are pure Domain services (static), built on `NormalizedText` (diacritic folding, legal-suffix stripping, acronyms) and Jaro-Winkler (`TextSimilarity`).
 - Phase 1: errors carry `metadata["field"]` (`ErrorMetadata.ForField`) so the API can build a ProblemDetails `errors` dictionary keyed by JSON field.
+- Phase 2: input validation = FluentValidation validators that **delegate to the value objects** (`MustBeValueObject(CompanyName.Create)`), so the domain is the single source of truth and all field errors come back in one response. `ValidationBehavior` turns failures into `ErrorOr` validation errors (no exceptions). It builds `ErrorOr<T>.From(List<Error>)` via a cached delegate, not `dynamic`.
+- Phase 2: an extra rule beyond the brief: creating a second company for an already-registered registrable domain returns **409 Conflict** (`Company.Website.Duplicate`).
+- Phase 2: the search contract is `SearchCompaniesQuery(name, domain, q, sort, page, pageSize)`. Without `q`, filter/sort/page go to the repository (DB-friendly `ListAsync`). With `q`, the handler ranks `ListAllAsync` candidates with `CompanySearchScorer` (default sort = relevance). `sort` accepts `relevance|name|-name|createdAt|-createdAt`.
+- Phase 2: Mediator pipeline behaviors must be listed in the **Api's** `AddMediator(o => o.PipelineBehaviors = [...])` (the source generator reads them there): `LoggingBehavior<,>` first, then `ValidationBehavior<,>`.

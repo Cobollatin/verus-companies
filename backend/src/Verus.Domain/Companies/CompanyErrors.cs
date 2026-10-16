@@ -71,6 +71,13 @@ public static class CompanyErrors
             $"The company name does not match the website. {assessment.Reason}"
         );
 
+    public static Error DuplicateDomain(string registrableDomain) =>
+        Error.Conflict(
+            "Company.Website.Duplicate",
+            $"A company with the website domain '{registrableDomain}' is already registered.",
+            ErrorMetadata.ForField(WebsiteField)
+        );
+
     public static Error NotFound(CompanyId id) =>
         Error.NotFound("Company.NotFound", $"No company exists with id '{id}'.");
 
