@@ -1,0 +1,25 @@
+# pnpm workspace: root holds repo tooling (hooks, commitlint); frontend/ is the Angular app.
+packages:
+  - frontend
+
+# Supply-chain hardening: don't resolve versions published less than 24h ago.
+minimumReleaseAge: 1440
+
+# Only these packages may run install scripts; everything else is blocked.
+onlyBuiltDependencies:
+  - esbuild
+
+# Install scripts we deliberately skip (lefthook hooks are installed by the `prepare` script).
+ignoredBuiltDependencies:
+  - lefthook
+  # Ship prebuilt binaries via node-gyp-build; no compile step needed.
+  - '@parcel/watcher'
+  - lmdb
+  - msgpackr-extract
+
+# Peer deps must be satisfied explicitly (strict-peer-dependencies in .npmrc).
+# @emnapi/* are optional WASM runtime peers of native-binding packages; we always run the native binary.
+peerDependencyRules:
+  ignoreMissing:
+    - '@emnapi/core'
+    - '@emnapi/runtime'

@@ -1,0 +1,31 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+coverage/
+*.trx
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+*.tsbuildinfo
+.pnpm-store/
+
+# IDE / OS
+.idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+.env
+.env.*
+
+# Exercise brief (kept local, summarized in TODO.md)
+*.pdf

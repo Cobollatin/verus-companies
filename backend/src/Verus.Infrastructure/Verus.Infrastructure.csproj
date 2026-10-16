@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Verus.Application\Verus.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="AngleSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Verus.Api.IntegrationTests" />
+    <InternalsVisibleTo Include="Verus.ArchitectureTests" />
+  </ItemGroup>
+</Project>

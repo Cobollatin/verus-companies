@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="ErrorOr" />
+    <PackageReference Include="Nager.PublicSuffix" />
+    <PackageReference Include="F23.StringSimilarity" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Verus.Domain.Tests" />
+  </ItemGroup>
+</Project>
