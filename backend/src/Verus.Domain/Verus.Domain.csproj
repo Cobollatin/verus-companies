@@ -5,6 +5,13 @@
     <PackageReference Include="F23.StringSimilarity" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Snapshot of https://publicsuffix.org/list/public_suffix_list.dat (MPL-2.0); static data, no runtime I/O. -->
+    <EmbeddedResource
+      Include="Resources\public_suffix_list.dat"
+      LogicalName="public_suffix_list.dat"
+    />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="Verus.Domain.Tests" />
   </ItemGroup>
 </Project>

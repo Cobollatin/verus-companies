@@ -90,15 +90,15 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 - [ ] `.github/workflows/ci.yml` runs the same script on ubuntu (setup-dotnet 10, pnpm/action-setup, node 22).
 - [ ] ✅ Exit criterion: empty solution + fresh Angular app pass `scripts/ci` and the hooks fire.
 
-## Phase 1 — Domain model (Okhravi / Horvat)  ☐
-- [ ] `CompanyId` (readonly record struct over Guid v7, `Guid.CreateVersion7()`).
-- [ ] `CompanyName` value object: trimmed, not empty, length 3–200 ("at least a few characters"). `static ErrorOr<CompanyName> Create(string)`.
-- [ ] `WebsiteUrl` value object: absolute `http/https` `Uri`, host has a dot, no userinfo, normalized (lowercase host). Exposes `Host` and `RegistrableDomain` (via `Nager.PublicSuffix`, e.g. `shop.example.co.uk` → `example.co.uk`).
-- [ ] `Company` aggregate: private ctor, `static ErrorOr<Company> Create(CompanyName, WebsiteUrl, RelevanceAssessment, TimeProvider)`. The aggregate refuses creation if the assessment isn't relevant, so there's no invalid Company. Has `CreatedAt`.
-- [ ] `DomainErrors.Company.*` (codes like `Company.Name.TooShort`, `Company.Website.Invalid`, `Company.NameNotRelevantToWebsite`) with concise, user-friendly messages.
-- [ ] **Relevance (pure, in Domain)**: `CompanyNameNormalizer` (lowercase, remove diacritics, strip legal suffixes inc/llc/ltd/corp/gmbh/sa/co, punctuation, `&`→and), plus `NameDomainMatcher` producing `RelevanceAssessment(Score 0..1, Method, Reason)`. Rules, best score wins:
+## Phase 1 — Domain model (Okhravi / Horvat)  ✅
+- [x] `CompanyId` (readonly record struct over Guid v7, `Guid.CreateVersion7()`).
+- [x] `CompanyName` value object: trimmed, not empty, length 3–200 ("at least a few characters"). `static ErrorOr<CompanyName> Create(string)`.
+- [x] `WebsiteUrl` value object: absolute `http/https` `Uri`, host has a dot, no userinfo, normalized (lowercase host). Exposes `Host` and `RegistrableDomain` (via `Nager.PublicSuffix`, e.g. `shop.example.co.uk` → `example.co.uk`).
+- [x] `Company` aggregate: private ctor, `static ErrorOr<Company> Create(CompanyName, WebsiteUrl, RelevanceAssessment, TimeProvider)`. The aggregate refuses creation if the assessment isn't relevant, so there's no invalid Company. Has `CreatedAt`.
+- [x] `DomainErrors.Company.*` (codes like `Company.Name.TooShort`, `Company.Website.Invalid`, `Company.NameNotRelevantToWebsite`) with concise, user-friendly messages.
+- [x] **Relevance (pure, in Domain)**: `CompanyNameNormalizer` (lowercase, remove diacritics, strip legal suffixes inc/llc/ltd/corp/gmbh/sa/co, punctuation, `&`→and), plus `NameDomainMatcher` producing `RelevanceAssessment(Score 0..1, Method, Reason)`. Rules, best score wins:
   exact squashed match (`"Acme Corp"` ↔ `acme.com`) = 1.0; domain label contains all name tokens / name contains domain label = 0.9; acronym (`International Business Machines` ↔ `ibm.com`) = 0.85; Jaro-Winkler similarity of squashed strings (F23.StringSimilarity). Threshold `0.8`, configurable via `RelevanceOptions`.
-- [ ] Unit tests: table-driven `[Theory]` for each value object and matcher rule, plus negative cases.
+- [x] Unit tests: table-driven `[Theory]` for each value object and matcher rule, plus negative cases.
 
 ## Phase 2 — Application layer (vertical slices)  ☐
 - [ ] Abstractions: `ICompanyRepository { AddAsync, GetByIdAsync, SearchAsync(CompanySearchCriteria) }` (returns domain objects, never EF types), `IWebsiteContentProvider { Task<WebsiteMetadata?> GetAsync(Uri, ct) }`, `IRelevanceEvaluator`.
@@ -155,3 +155,6 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
    - `GET /api/v1/companies/{random guid}` → 404; `GET ?q=micro` → ordered results; `GET ?name=zzz` → 200 `[]`
 4. `pnpm start` in `/frontend`: submit valid and invalid companies, see the messages, list refreshes, search filters live.
 5. `pnpm install` with npm/yarn is refused (`only-allow`). A csproj with `Version=` fails restore (CPM).
+- Phase 1: the Public Suffix List is an **embedded resource** in Domain (`Resources/public_suffix_list.dat`, parsed once, lazily, by `Internet/PublicSuffix.cs`), so registrable-domain parsing does no runtime I/O. Refresh it by re-downloading the file.
+- Phase 1: `CompanySearchScorer`, `NameDomainMatcher` and `ContentMatcher` are pure Domain services (static), built on `NormalizedText` (diacritic folding, legal-suffix stripping, acronyms) and Jaro-Winkler (`TextSimilarity`).
+- Phase 1: errors carry `metadata["field"]` (`ErrorMetadata.ForField`) so the API can build a ProblemDetails `errors` dictionary keyed by JSON field.
