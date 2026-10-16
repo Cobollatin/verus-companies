@@ -3,9 +3,10 @@
     <ProjectReference Include="..\Verus.Application\Verus.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <!-- Relational mapping metadata (table/column names, indexes) so a SQL provider can drop in. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="AngleSharp" />
   </ItemGroup>

@@ -64,6 +64,7 @@ dotnet_diagnostic.IDE0005.severity = warning # unnecessary usings
 dotnet_diagnostic.MA0004.severity = none     # ConfigureAwait (Meziantou)
 dotnet_diagnostic.MA0048.severity = none     # file name must match type name – slices group small types
 dotnet_diagnostic.MA0006.severity = none     # == on strings is ordinal in C#; string.Equals adds noise
+dotnet_diagnostic.S1075.severity = none      # route templates and relative URLs are hardcoded by nature
 
 [backend/tests/**.cs]
 dotnet_diagnostic.CA1707.severity = none     # underscores in test names

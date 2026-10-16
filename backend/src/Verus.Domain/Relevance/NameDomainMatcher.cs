@@ -71,7 +71,28 @@ public static class NameDomainMatcher
             yield return new(0.85, $"Domain '{domain}' is the acronym of the company name.");
         }
 
+        if (IsPartialAcronym(name.SignificantTokens, label))
+        {
+            yield return new(0.85, $"Domain '{domain}' abbreviates the company name.");
+        }
+
         var similarity = Math.Min(TextSimilarity.Of(name.Squashed, label), 0.95);
         yield return new(similarity, $"Domain '{domain}' is {similarity:P0} similar to the company name.");
+    }
+
+    /// <summary>Initials of the leading words followed by the remaining words: "New York Times" ↔ nytimes.</summary>
+    private static bool IsPartialAcronym(IReadOnlyList<string> tokens, string label)
+    {
+        for (var split = 2; split < tokens.Count; split++)
+        {
+            var initials = string.Concat(tokens.Take(split).Select(t => t[0]));
+            var rest = string.Concat(tokens.Skip(split));
+            if (string.Equals(initials + rest, label, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

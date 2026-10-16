@@ -112,22 +112,22 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 - [x] `CompanyResponse(Guid Id, string Name, string WebsiteUrl, string Domain, DateTimeOffset CreatedAt)` plus optional `Relevance` on search results. A manual mapping extension, no AutoMapper.
 - [x] Unit tests: handlers with NSubstitute fakes, the validation behavior, scorer ordering.
 
-## Phase 3 — Infrastructure  ☐
-- [ ] `AppDbContext` (`internal`), `CompanyConfiguration` (value converters for `CompanyId`/`CompanyName`/`WebsiteUrl`, `RegistrableDomain` stored as a column so later SQL can index it).
-- [ ] `CompanyRepository`: filters (`name`, `domain`) go through EF queries (`AsNoTracking`, `EF.Functions`-free so they're portable). Relevance `q` pre-filters candidates in the query, then scores in memory with the domain scorer. Document that a real DB would replace this with FTS/trigram behind the same interface.
-- [ ] `HttpWebsiteContentProvider`: typed `HttpClient` + `Microsoft.Extensions.Http.Resilience` (timeout 3s, 1 retry). **SSRF guard**: resolve DNS, reject private/loopback/link-local IPs, http/https only, max 2 redirects, read ≤256 KB, HTML parsed with AngleSharp. Failures degrade to "not relevant" with a reason, never 500.
-- [ ] `AddInfrastructure(IServiceCollection, IConfiguration)` with `InMemoryDatabase` name from config. This one method is the swap point for SQL.
+## Phase 3 — Infrastructure  ✅
+- [x] `AppDbContext` (`internal`), `CompanyConfiguration` (value converters for `CompanyId`/`CompanyName`/`WebsiteUrl`, `RegistrableDomain` stored as a column so later SQL can index it).
+- [x] `CompanyRepository`: filters (`name`, `domain`) go through EF queries (`AsNoTracking`, `EF.Functions`-free so they're portable). Relevance `q` pre-filters candidates in the query, then scores in memory with the domain scorer. Document that a real DB would replace this with FTS/trigram behind the same interface.
+- [x] `HttpWebsiteContentProvider`: typed `HttpClient` + `Microsoft.Extensions.Http.Resilience` (timeout 3s, 1 retry). **SSRF guard**: resolve DNS, reject private/loopback/link-local IPs, http/https only, max 2 redirects, read ≤256 KB, HTML parsed with AngleSharp. Failures degrade to "not relevant" with a reason, never 500.
+- [x] `AddInfrastructure(IServiceCollection, IConfiguration)` with `InMemoryDatabase` name from config. This one method is the swap point for SQL.
 
-## Phase 4 — API (FastEndpoints)  ☐
-- [ ] `Program.cs`: Serilog, `AddFastEndpoints`, `AddMediator`, `AddApplication`, `AddInfrastructure`, `UseFastEndpoints(c => { c.Versioning.Prefix="v"; c.Endpoints.RoutePrefix="api"; c.Errors.UseProblemDetails(); })`, global exception handler → 500 ProblemDetails (logged), OpenAPI (FastEndpoints.Swagger / Scalar UI), CORS for `http://localhost:4200`, `launchSettings.json` on **http://localhost:5000** and **https://localhost:7000**.
-- [ ] Endpoints (thin: bind request DTO → `mediator.Send` → map `ErrorOr` to a result):
+## Phase 4 — API (FastEndpoints)  ✅
+- [x] `Program.cs`: Serilog, `AddFastEndpoints`, `AddMediator`, `AddApplication`, `AddInfrastructure`, `UseFastEndpoints(c => { c.Versioning.Prefix="v"; c.Endpoints.RoutePrefix="api"; c.Errors.UseProblemDetails(); })`, global exception handler → 500 ProblemDetails (logged), OpenAPI (FastEndpoints.Swagger / Scalar UI), CORS for `http://localhost:4200`, `launchSettings.json` on **http://localhost:5000** and **https://localhost:7000**.
+- [x] Endpoints (thin: bind request DTO → `mediator.Send` → map `ErrorOr` to a result):
   - `POST /api/v1/companies` → **201** + `Location: /api/v1/companies/{id}`, **400** ProblemDetails (`errors` dict + concise `detail`).
   - `GET /api/v1/companies/{id:guid}` → **200** / **404** ProblemDetails.
   - `GET /api/v1/companies?name=&domain=&q=&sort=&page=&pageSize=` → **200** `PagedResponse` (empty list when nothing matches), **400** on bad query params. Retrieving "all" is the same route with no filters.
-- [ ] `ErrorOrExtensions.ToProblem()`: Validation→400, NotFound→404, Conflict→409, the rest→500.
-- [ ] Extensibility notes in README: PUT/PATCH/DELETE just add one slice and one endpoint each. Paging and sorting already exist.
-- [ ] Integration tests (`WebApplicationFactory` with a fake `IWebsiteContentProvider`): 201 + Location, each 400 rule, 404, search filters, relevance ordering, empty result, ProblemDetails shape.
-- [ ] Architecture tests: Domain has no deps, Application has no EF/FastEndpoints refs, endpoints have no repository refs.
+- [x] `ErrorOrExtensions.ToProblem()`: Validation→400, NotFound→404, Conflict→409, the rest→500.
+- [x] Extensibility notes in README: PUT/PATCH/DELETE just add one slice and one endpoint each. Paging and sorting already exist.
+- [x] Integration tests (`WebApplicationFactory` with a fake `IWebsiteContentProvider`): 201 + Location, each 400 rule, 404, search filters, relevance ordering, empty result, ProblemDetails shape.
+- [x] Architecture tests: Domain has no deps, Application has no EF/FastEndpoints refs, endpoints have no repository refs.
 
 ## Phase 5 — Frontend (Angular 21)  ☐
 - [ ] `core`: `API_BASE_URL` InjectionToken from `environment` (dev: `http://localhost:5000/api/v1`), `provideHttpClient(withInterceptors([problemDetailsInterceptor]))` that normalizes errors into a typed `ApiError { title, detail, fieldErrors }`.
@@ -162,3 +162,9 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 - Phase 2: an extra rule beyond the brief: creating a second company for an already-registered registrable domain returns **409 Conflict** (`Company.Website.Duplicate`).
 - Phase 2: the search contract is `SearchCompaniesQuery(name, domain, q, sort, page, pageSize)`. Without `q`, filter/sort/page go to the repository (DB-friendly `ListAsync`). With `q`, the handler ranks `ListAllAsync` candidates with `CompanySearchScorer` (default sort = relevance). `sort` accepts `relevance|name|-name|createdAt|-createdAt`.
 - Phase 2: Mediator pipeline behaviors must be listed in the **Api's** `AddMediator(o => o.PipelineBehaviors = [...])` (the source generator reads them there): `LoggingBehavior<,>` first, then `ValidationBehavior<,>`.
+- Phase 3: value objects map as EF **owned types** (columns `Name`, `WebsiteUrl`, `WebsiteHost`, `WebsiteDomain`, `WebsiteDomainLabel`), bound through their private constructors. `Microsoft.EntityFrameworkCore.Relational` is referenced only for table/column/index metadata. The unique index on `WebsiteDomain` is ignored by InMemory, so the handler checks for duplicates too.
+- Phase 3: the SSRF guard lives in `SocketsHttpHandler.ConnectCallback` (`PublicAddressGuard`). It validates **every resolved IP at connect time**, which covers redirects and DNS rebinding. Its refusals (`UnsafeAddressException`) are excluded from Polly retries. Real-world caveat: many big sites (e.g. abc.xyz) return 403 to bots, so the content fallback degrades to "could not be inspected".
+- Phase 4: errors returned from endpoints use `ApiProblem` (an `IResult` wrapping `FastEndpoints.ProblemDetails`) so they are served as `application/problem+json` in the **same shape** as FastEndpoints' own binding errors: `{type,title,status,detail,instance,traceId,errors:[{name,reason,code}]}`. Clients handle one format.
+- Phase 4: `GET /companies/{id}` has no route constraint on purpose: a malformed id gives 400 and an unknown id gives 404. Malformed JSON gives 400 "The request body is not valid JSON." Nulls are omitted from responses.
+- Phase 4: Serilog uses `preserveStaticLogger: true` so multiple `WebApplicationFactory` hosts can run in one test process.
+- Phase 4: docs live at `/scalar/v1` (OpenAPI JSON at `/swagger/v1/swagger.json`). `/` redirects there.

@@ -16,6 +16,8 @@ public sealed class NameDomainMatcherTests
     [InlineData("Delta Air Lines", "https://www.delta.com", 0.9)]
     [InlineData("International Business Machines", "https://www.ibm.com", 0.85)]
     [InlineData("Procter & Gamble", "https://pg.com", 0.85)]
+    [InlineData("The New York Times", "https://www.nytimes.com", 0.85)]
+    [InlineData("Hewlett Packard Enterprise", "https://www.hpe.com", 0.85)]
     public void Assess_WhenNameMatchesDomain_IsRelevant(string name, string website, double expectedScore)
     {
         var result = NameDomainMatcher.Assess(TestData.Name(name), TestData.Website(website), RelevancePolicy.Default);
