@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem;
+}

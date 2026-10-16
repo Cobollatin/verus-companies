@@ -17,7 +17,7 @@ scripts/   ci.sh / ci.ps1 — the local CI (also run by the pre-push hook and Gi
 ## Commands
 | Task | Command |
 |---|---|
-| Full local CI | `pnpm ci` (or `bash scripts/ci.sh`, `./scripts/ci.ps1`) — `backend`/`frontend` arg runs one side |
+| Full local CI | `pnpm run ci` (or `bash scripts/ci.sh`, `./scripts/ci.ps1`) — `backend`/`frontend` arg runs one side |
 | Run API | `cd backend/src/Verus.Api && dotnet run` → http://localhost:5000, https://localhost:7000, docs at `/scalar` |
 | Run FE | `cd frontend && pnpm start` → http://localhost:4200 |
 | BE tests | `cd backend && dotnet test` |
@@ -57,7 +57,8 @@ Dependency rule (enforced by `tests/Verus.ArchitectureTests`):
 ## Frontend architecture
 ```
 src/app/core/                     app-wide singletons: config tokens, HTTP interceptors, error model
-src/app/shared/ui/                dumb, reusable presentational components
+src/app/shared/data/              RequestState<T> union + toRequestState() operator
+src/app/shared/ui/                dumb, reusable presentational components (Alert, Pager)
 src/app/features/<feature>/
   data-access/                    API services (HttpClient → Observable) + DTO types
   ui/                             presentational components (input()/output() only, no services)
@@ -67,6 +68,8 @@ src/app/features/<feature>/
 - RxJS for async/data streams (search: `debounceTime` → `distinctUntilChanged` → `switchMap`);
   signals for local UI state; bridge with `toSignal` at the template edge.
 - Typed reactive forms (`NonNullableFormBuilder`). Server ProblemDetails errors map onto form fields.
+- All HTTP errors become `ApiError` in `core/http` (interceptor); async UI state is `RequestState<T>`.
+- Dev server proxies `/api` → `http://localhost:5000` (`proxy.conf.json`); `API_BASE_URL` defaults to `/api/v1`.
 - Built-in control flow (`@if`, `@for`) only. No `any`.
 
 ## Package management (pnpm, enforced)
@@ -76,6 +79,7 @@ src/app/features/<feature>/
 - Add deps with `pnpm --filter verus-frontend add <pkg>` (or `pnpm add` inside `frontend/`).
 
 ## Git
-- Conventional Commits (commitlint, `commit-msg` hook). `pre-commit`: csharpier/prettier/eslint on staged files.
+- Conventional Commits (commitlint, `commit-msg` hook): lower-case subject (no leading acronym such as "EF"),
+  body lines ≤ 100 chars. `pre-commit`: csharpier/prettier/eslint on staged files.
   `pre-push`: full local CI. Never bypass hooks with `--no-verify`.
 - Commit after each completed `TODO.md` phase and tick its checkboxes.

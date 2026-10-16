@@ -129,19 +129,19 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 - [x] Integration tests (`WebApplicationFactory` with a fake `IWebsiteContentProvider`): 201 + Location, each 400 rule, 404, search filters, relevance ordering, empty result, ProblemDetails shape.
 - [x] Architecture tests: Domain has no deps, Application has no EF/FastEndpoints refs, endpoints have no repository refs.
 
-## Phase 5 — Frontend (Angular 21)  ☐
-- [ ] `core`: `API_BASE_URL` InjectionToken from `environment` (dev: `http://localhost:5000/api/v1`), `provideHttpClient(withInterceptors([problemDetailsInterceptor]))` that normalizes errors into a typed `ApiError { title, detail, fieldErrors }`.
-- [ ] `data-access/companies.api.ts`: `create()`, `getById()`, `search(criteria)` return `Observable`s. `company.models.ts` hand-written DTO types matching the API.
-- [ ] `ui/company-form`: typed Reactive Form (`NonNullableFormBuilder`). Client-side mirrors of the required/min-length/URL-pattern rules give fast feedback, and server errors map onto fields plus a top-level message. `output()` submit.
-- [ ] `ui/company-search-bar` (q / name / domain), `ui/company-table` (`@for` with an `@empty` state), `shared/ui/alert`.
-- [ ] `feature/companies-page`: `criteria$` → `debounceTime(300)` → `distinctUntilChanged` → `switchMap(api.search)` with loading/error state; a refresh `Subject` fires after a successful create. Template consumes via `toSignal`; local flags (submitting, banner message) are `signal`s. OnPush everywhere.
-- [ ] Minimal styling (plain CSS, maybe a classless base like Pico via CDN-free import if desired).
-- [ ] Tests (Vitest + Testing Library): form validation and error rendering, page flow with `HttpTestingController`, interceptor mapping.
+## Phase 5 — Frontend (Angular 21)  ✅
+- [x] `core`: `API_BASE_URL` InjectionToken from `environment` (dev: `http://localhost:5000/api/v1`), `provideHttpClient(withInterceptors([problemDetailsInterceptor]))` that normalizes errors into a typed `ApiError { title, detail, fieldErrors }`.
+- [x] `data-access/companies.api.ts`: `create()`, `getById()`, `search(criteria)` return `Observable`s. `company.models.ts` hand-written DTO types matching the API.
+- [x] `ui/company-form`: typed Reactive Form (`NonNullableFormBuilder`). Client-side mirrors of the required/min-length/URL-pattern rules give fast feedback, and server errors map onto fields plus a top-level message. `output()` submit.
+- [x] `ui/company-search-bar` (q / name / domain), `ui/company-table` (`@for` with an `@empty` state), `shared/ui/alert`.
+- [x] `feature/companies-page`: `criteria$` → `debounceTime(300)` → `distinctUntilChanged` → `switchMap(api.search)` with loading/error state; a refresh `Subject` fires after a successful create. Template consumes via `toSignal`; local flags (submitting, banner message) are `signal`s. OnPush everywhere.
+- [x] Minimal styling: plain CSS with design tokens in `styles.css` (light and dark), no UI library.
+- [x] Tests (Vitest + TestBed; Testing Library not added, to keep deps minimal): form validation and error rendering, page flow with `HttpTestingController`, interceptor mapping.
 
-## Phase 6 — Docs & polish  ☐
-- [ ] README: prerequisites (.NET 10 SDK, Node 22+, `corepack enable`), run commands (`dotnet run --project backend/src/Verus.Api`, `pnpm start`), curl examples, API table, **relevance strategy explanation**, design decisions and trade-offs (EF InMemory vs dictionary, Mediator vs FE command bus, no UoW, SSRF guard), extensibility notes.
-- [ ] `backend/src/Verus.Api/Companies.http` request samples.
-- [ ] Final `scripts/ci` green, then tag `v1.0.0`.
+## Phase 6 — Docs & polish  ✅
+- [x] README: prerequisites (.NET 10 SDK, Node 22+, `corepack enable`), run commands (`dotnet run --project backend/src/Verus.Api`, `pnpm start`), curl examples, API table, **relevance strategy explanation**, design decisions and trade-offs (EF InMemory vs dictionary, Mediator vs FE command bus, no UoW, SSRF guard), extensibility notes.
+- [x] `backend/src/Verus.Api/Companies.http` request samples.
+- [x] Final `scripts/ci` green, then tag `v1.0.0`.
 
 ---
 
@@ -168,3 +168,14 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 - Phase 4: `GET /companies/{id}` has no route constraint on purpose: a malformed id gives 400 and an unknown id gives 404. Malformed JSON gives 400 "The request body is not valid JSON." Nulls are omitted from responses.
 - Phase 4: Serilog uses `preserveStaticLogger: true` so multiple `WebApplicationFactory` hosts can run in one test process.
 - Phase 4: docs live at `/scalar/v1` (OpenAPI JSON at `/swagger/v1/swagger.json`). `/` redirects there.
+- Phase 5: dev uses a proxy (`frontend/proxy.conf.json`, `/api` → :5000) and `API_BASE_URL` defaults to `/api/v1`, so no environment files are needed.
+- Phase 5: there is also a company **detail page** (`/companies/:id`, via `withComponentInputBinding`) that exercises `GET /companies/{id}`, including its 404 state.
+- Phase 5: `CompaniesPage` streams: an immediate first load, debounced filter changes, a filter change resets to page 1, `exhaustMap` blocks double submits, and a successful create re-runs the current search. `linkedSignal` keeps the last page visible while the next one loads.
+- Phase 5: ESLint turns `@typescript-eslint/unbound-method` off (Angular `Validators.*` are meant to be passed unbound), and `template/no-call-expression` is not used because signals are function calls.
+- Phase 6: verified end to end via the dev-server proxy with curl. The UI itself was **not** visually checked in a browser in this session (the browser automation tool was unavailable).
+
+## Possible follow-ups (not required by the brief)
+- Visual/E2E smoke test (Playwright) of the Angular page.
+- Upgrade pnpm 10.27 → latest major. Refresh the embedded Public Suffix List periodically.
+- Curated alias / registry strategy for brands whose domain shares nothing with the name (e.g. Alphabet ↔ abc.xyz behind a bot wall).
+- Generate the frontend DTO types from the OpenAPI document (`/swagger/v1/swagger.json`) instead of hand-writing them.

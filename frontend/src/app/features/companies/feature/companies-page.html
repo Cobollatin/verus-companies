@@ -1,0 +1,48 @@
+<section class="card" aria-labelledby="create-heading">
+  <h2 id="create-heading">Register a company</h2>
+  <p class="hint">
+    The name must match the website — checked against the domain and, if needed, the home page.
+  </p>
+
+  <app-company-form [state]="createState()" (submitted)="create($event)" />
+
+  @let created = createState();
+  @if (created.kind === 'success') {
+    <app-alert kind="success">
+      <strong>{{ created.value.name }}</strong> was registered ({{ created.value.domain }}).
+    </app-alert>
+  } @else if (created.kind === 'error') {
+    <app-alert kind="error">{{ created.error.message }}</app-alert>
+  }
+</section>
+
+<section class="card" aria-labelledby="list-heading">
+  <h2 id="list-heading">Companies</h2>
+
+  <app-company-search-bar (filtersChange)="filter($event)" />
+
+  @let state = results();
+  @if (state.kind === 'error') {
+    <app-alert kind="error">Could not load companies: {{ state.error.message }}</app-alert>
+  }
+
+  @if (lastPage(); as page) {
+    <div [attr.aria-busy]="state.kind === 'pending'" [class.loading]="state.kind === 'pending'">
+      <p class="summary" aria-live="polite">
+        {{ page.totalCount }} {{ page.totalCount === 1 ? 'company' : 'companies' }}
+      </p>
+      <app-company-table [companies]="page.items" [showRelevance]="showRelevance()" />
+      @if (page.totalPages > 1) {
+        <app-pager
+          [page]="page.page"
+          [totalPages]="page.totalPages"
+          [hasPrevious]="page.hasPreviousPage"
+          [hasNext]="page.hasNextPage"
+          (pageChange)="goToPage($event)"
+        />
+      }
+    </div>
+  } @else if (state.kind === 'pending') {
+    <p class="hint" aria-live="polite">Loading companies…</p>
+  }
+</section>

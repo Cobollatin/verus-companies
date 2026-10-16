@@ -1,0 +1,40 @@
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Website</th>
+      <th scope="col">Domain</th>
+      <th scope="col">Added</th>
+      @if (showRelevance()) {
+        <th scope="col" class="numeric">Relevance</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (company of companies(); track company.id) {
+      <tr>
+        <td>
+          <a [routerLink]="['/companies', company.id]">{{ company.name }}</a>
+        </td>
+        <td>
+          <a [href]="company.websiteUrl" target="_blank" rel="noopener noreferrer">{{
+            company.websiteUrl
+          }}</a>
+        </td>
+        <td>{{ company.domain }}</td>
+        <td>
+          <time [attr.datetime]="company.createdAt">{{ company.createdAt | date: 'medium' }}</time>
+        </td>
+        @if (showRelevance()) {
+          <td class="numeric">{{ company.relevanceScore ?? 0 | percent }}</td>
+        }
+      </tr>
+    } @empty {
+      <tr>
+        <td class="empty" [attr.colspan]="showRelevance() ? 5 : 4">
+          No companies match your search.
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

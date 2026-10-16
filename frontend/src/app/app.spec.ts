@@ -11,10 +11,10 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('renders the application title', async () => {
+  it('renders the brand link', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelector('h1')?.textContent).toContain('Verus Companies');
+    expect(element.querySelector('.brand')?.textContent).toContain('Verus Companies');
   });
 });

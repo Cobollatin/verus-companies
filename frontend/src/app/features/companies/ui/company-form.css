@@ -1,0 +1,20 @@
+form {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: start;
+}
+
+button {
+  margin-top: 1.6rem;
+}
+
+@media (max-width: 720px) {
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  button {
+    margin-top: 0;
+  }
+}

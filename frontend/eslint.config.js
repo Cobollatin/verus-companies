@@ -39,6 +39,8 @@ module.exports = defineConfig([
         { allowExpressions: true, allowTypedFunctionExpressions: true },
       ],
       '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
+      // Angular's static Validators (e.g. Validators.required) are designed to be passed unbound.
+      '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }],
     },
   },
@@ -55,7 +57,6 @@ module.exports = defineConfig([
     rules: {
       '@angular-eslint/template/prefer-control-flow': 'error',
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
-      '@angular-eslint/template/no-call-expression': ['error', { allowList: [] }],
     },
   },
 ]);

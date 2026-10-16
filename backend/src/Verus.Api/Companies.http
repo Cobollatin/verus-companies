@@ -1,0 +1,67 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Create a company (201 + Location)
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "Microsoft",
+  "websiteUrl": "https://www.microsoft.com"
+}
+
+### Acronym match: International Business Machines ↔ ibm.com (201)
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "International Business Machines",
+  "websiteUrl": "https://www.ibm.com"
+}
+
+### Name not relevant to the website (400)
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "Apple",
+  "websiteUrl": "https://www.amazon.com"
+}
+
+### Invalid fields (400, one error per field)
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "",
+  "websiteUrl": "not-a-url"
+}
+
+### Duplicate website domain (409)
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "Microsoft Corporation",
+  "websiteUrl": "https://microsoft.com"
+}
+
+### List all companies (paged)
+GET {{baseUrl}}/companies
+
+### Filter by partial name and/or domain
+GET {{baseUrl}}/companies?name=micro&domain=microsoft.com
+
+### Relevance-ranked search
+GET {{baseUrl}}/companies?q=micro
+
+### Sorting and paging
+GET {{baseUrl}}/companies?sort=-createdAt&page=1&pageSize=5
+
+### Empty result (200 with no items)
+GET {{baseUrl}}/companies?name=zzz
+
+### Unknown id (404)
+GET {{baseUrl}}/companies/0199e9a0-0000-7000-8000-000000000000
+
+### Malformed id (400)
+GET {{baseUrl}}/companies/not-a-guid

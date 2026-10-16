@@ -1,0 +1,37 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="field">
+    <label for="company-name">Company name</label>
+    <input
+      id="company-name"
+      type="text"
+      formControlName="name"
+      autocomplete="organization"
+      placeholder="Microsoft"
+      [attr.aria-invalid]="errorFor('name') !== null"
+      aria-describedby="company-name-error"
+    />
+    @if (errorFor('name'); as error) {
+      <p id="company-name-error" class="field-error">{{ error }}</p>
+    }
+  </div>
+
+  <div class="field">
+    <label for="company-website">Website URL</label>
+    <input
+      id="company-website"
+      type="url"
+      formControlName="websiteUrl"
+      autocomplete="url"
+      placeholder="https://www.microsoft.com"
+      [attr.aria-invalid]="errorFor('websiteUrl') !== null"
+      aria-describedby="company-website-error"
+    />
+    @if (errorFor('websiteUrl'); as error) {
+      <p id="company-website-error" class="field-error">{{ error }}</p>
+    }
+  </div>
+
+  <button type="submit" [disabled]="pending()" [attr.aria-busy]="pending()">
+    {{ pending() ? 'Checking…' : 'Add company' }}
+  </button>
+</form>
