@@ -62,33 +62,33 @@ Dependency rule: Api → Application → Domain; Infrastructure → Application/
 
 ---
 
-## Phase 0 — Project setup & tooling  ☐
+## Phase 0 — Project setup & tooling  ✅
 **Repo**
-- [ ] `git init`, `main` branch, `.gitignore` (dotnet + node), `.gitattributes` (`* text=auto eol=lf`), root `.editorconfig` (C# rules + 2-space TS/JSON/HTML).
-- [ ] `AGENTS.md`: architecture, dependency rule, slice recipe ("how to add a feature"), commands (build/test/lint/format/ci), conventions (naming, ErrorOr, no business logic in endpoints, DTO-only contracts, Conventional Commits). `CLAUDE.md` just points to it.
-- [ ] `TODO.md` = this plan.
+- [x] `git init`, `main` branch, `.gitignore` (dotnet + node), `.gitattributes` (`* text=auto eol=lf`), root `.editorconfig` (C# rules + 2-space TS/JSON/HTML).
+- [x] `AGENTS.md`: architecture, dependency rule, slice recipe ("how to add a feature"), commands (build/test/lint/format/ci), conventions (naming, ErrorOr, no business logic in endpoints, DTO-only contracts, Conventional Commits). `CLAUDE.md` just points to it.
+- [x] `TODO.md` = this plan.
 
 **Backend tooling and package management**
-- [ ] `global.json` pins SDK 10.0.x.
-- [ ] `Directory.Build.props`: `net10.0`, `Nullable=enable`, `ImplicitUsings`, `LangVersion=latest`, `TreatWarningsAsErrors=true`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild=true`, `GenerateDocumentationFile` (Api), `RestorePackagesWithLockFile=true`, `RestoreLockedMode` when `CI=true`, `NuGetAudit=true` / `NuGetAuditMode=all` / `NuGetAuditLevel=low`, warnings-as-errors for NU1901-NU1904.
-- [ ] `Directory.Packages.props`: `ManagePackageVersionsCentrally=true`, `CentralPackageTransitivePinningEnabled=true`, and every version lives here (no `Version=` in csproj). Analyzers go in as `GlobalPackageReference`: Meziantou.Analyzer, SonarAnalyzer.CSharp.
-- [ ] `nuget.config`: `<clear/>` + nuget.org only + `packageSourceMapping` (`*` → nuget.org).
-- [ ] Local tool manifest: `csharpier` 1.3 (formatter, `dotnet csharpier check .` in CI).
-- [ ] Create `Verus.slnx` and the 4 src + 4 test projects, all wired with project references.
+- [x] `global.json` pins SDK 10.0.x.
+- [x] `Directory.Build.props`: `net10.0`, `Nullable=enable`, `ImplicitUsings`, `LangVersion=latest`, `TreatWarningsAsErrors=true`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild=true`, `GenerateDocumentationFile` (Api), `RestorePackagesWithLockFile=true`, `RestoreLockedMode` when `CI=true`, `NuGetAudit=true` / `NuGetAuditMode=all` / `NuGetAuditLevel=low`, warnings-as-errors for NU1901-NU1904.
+- [x] `Directory.Packages.props`: `ManagePackageVersionsCentrally=true`, `CentralPackageTransitivePinningEnabled=true`, and every version lives here (no `Version=` in csproj). Analyzers go in as `GlobalPackageReference`: Meziantou.Analyzer, SonarAnalyzer.CSharp.
+- [x] `nuget.config`: `<clear/>` + nuget.org only + `packageSourceMapping` (`*` → nuget.org).
+- [x] Local tool manifest: `csharpier` 1.3 (formatter, `dotnet csharpier check .` in CI).
+- [x] Create `Verus.slnx` and the 4 src + 4 test projects, all wired with project references.
 
 **Frontend tooling and package management**
-- [ ] `corepack enable`, then `pnpm dlx @angular/cli@21 new frontend --package-manager=pnpm --style=css --ssr=false --zoneless --routing`.
-- [ ] `package.json`: `"packageManager": "pnpm@<latest 10.x>"`, `"engines": { "node": ">=22.12 <23 || >=24", "pnpm": ">=10" }`, `"preinstall": "npx only-allow pnpm"`.
-- [ ] `.npmrc`: `engine-strict=true`, `save-exact=true`, `strict-peer-dependencies=true`, `auto-install-peers=false`.
-- [ ] `pnpm-workspace.yaml` settings: `minimumReleaseAge: 1440` (supply-chain delay), `onlyBuiltDependencies: [esbuild, lmdb, ...]` (explicit allow-list for install scripts). Commit `pnpm-lock.yaml`, and CI uses `pnpm install --frozen-lockfile`. Add `pnpm audit --prod` to CI.
-- [ ] `tsconfig`: Angular strict + `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, strict templates.
-- [ ] ESLint (`ng add angular-eslint`, flat config, typed rules, `@angular-eslint/template` accessibility rules, `prefer-on-push`, no `any`). Prettier + `eslint-config-prettier`.
+- [x] `corepack enable`, then `pnpm dlx @angular/cli@21 new frontend --package-manager=pnpm --style=css --ssr=false --zoneless --routing`.
+- [x] `package.json`: `"packageManager": "pnpm@<latest 10.x>"`, `"engines": { "node": ">=22.12 <23 || >=24", "pnpm": ">=10" }`, `"preinstall": "npx only-allow pnpm"`.
+- [x] `.npmrc`: `engine-strict=true`, `save-exact=true`, `strict-peer-dependencies=true`, `auto-install-peers=false`.
+- [x] `pnpm-workspace.yaml` settings: `minimumReleaseAge: 1440` (supply-chain delay), `onlyBuiltDependencies: [esbuild, lmdb, ...]` (explicit allow-list for install scripts). Commit `pnpm-lock.yaml`, and CI uses `pnpm install --frozen-lockfile`. Add `pnpm audit --prod` to CI.
+- [x] `tsconfig`: Angular strict + `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, strict templates.
+- [x] ESLint (`ng add angular-eslint`, flat config, typed rules, `@angular-eslint/template` accessibility rules, `prefer-on-push`, no `any`). Prettier + `eslint-config-prettier`.
 
 **Local CI and hooks**
-- [ ] `scripts/ci.ps1` + `ci.sh`: backend `restore --locked-mode → csharpier check → build -warnaserror → test (coverage)`. Frontend `pnpm install --frozen-lockfile → lint → prettier --check → test --watch=false → build`.
-- [ ] `lefthook.yml`: **pre-commit** = csharpier + prettier + eslint on staged files (fast). **commit-msg** = commitlint (Conventional Commits). **pre-push** = full `scripts/ci`. Install Lefthook as a frontend devDependency plus `lefthook install` in a `prepare` script (the root `package.json` is a tiny pnpm root only if needed; otherwise run from `/frontend` with `--cwd ..`).
-- [ ] `.github/workflows/ci.yml` runs the same script on ubuntu (setup-dotnet 10, pnpm/action-setup, node 22).
-- [ ] ✅ Exit criterion: empty solution + fresh Angular app pass `scripts/ci` and the hooks fire.
+- [x] `scripts/ci.ps1` + `ci.sh`: backend `restore --locked-mode → csharpier check → build -warnaserror → test (coverage)`. Frontend `pnpm install --frozen-lockfile → lint → prettier --check → test --watch=false → build`.
+- [x] `lefthook.yml`: **pre-commit** = csharpier + prettier + eslint on staged files (fast). **commit-msg** = commitlint (Conventional Commits). **pre-push** = full `scripts/ci`. Install Lefthook as a frontend devDependency plus `lefthook install` in a `prepare` script (the root `package.json` is a tiny pnpm root only if needed; otherwise run from `/frontend` with `--cwd ..`).
+- [x] `.github/workflows/ci.yml` runs the same script on ubuntu (setup-dotnet 10, pnpm/action-setup, node 22).
+- [x] ✅ Exit criterion: empty solution + fresh Angular app pass `scripts/ci` and the hooks fire.
 
 ## Phase 1 — Domain model (Okhravi / Horvat)  ✅
 - [x] `CompanyId` (readonly record struct over Guid v7, `Guid.CreateVersion7()`).
