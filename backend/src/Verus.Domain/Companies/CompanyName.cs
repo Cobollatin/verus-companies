@@ -14,29 +14,17 @@ public sealed record CompanyName
 
     public static ErrorOr<CompanyName> Create(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        // Collapses runs of whitespace; whitespace-only input becomes "".
+        var normalized = string.Join(' ', value?.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries) ?? []);
+
+        return normalized switch
         {
-            return CompanyErrors.NameRequired;
-        }
-
-        var normalized = string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
-
-        if (normalized.Length < MinLength)
-        {
-            return CompanyErrors.NameTooShort;
-        }
-
-        if (normalized.Length > MaxLength)
-        {
-            return CompanyErrors.NameTooLong;
-        }
-
-        if (!normalized.Any(char.IsLetterOrDigit))
-        {
-            return CompanyErrors.NameInvalid;
-        }
-
-        return new CompanyName(normalized);
+            "" => CompanyErrors.NameRequired,
+            { Length: < MinLength } => CompanyErrors.NameTooShort,
+            { Length: > MaxLength } => CompanyErrors.NameTooLong,
+            _ when !normalized.Any(char.IsLetterOrDigit) => CompanyErrors.NameInvalid,
+            _ => new CompanyName(normalized),
+        };
     }
 
     public override string ToString() => Value;

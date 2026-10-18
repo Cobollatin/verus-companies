@@ -26,18 +26,7 @@ public sealed partial class LoggingBehavior<TMessage, TResponse>(ILogger<Logging
         try
         {
             var response = await next(message, cancellationToken);
-            var elapsed = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
-
-            if (response.IsError)
-            {
-                var codes = string.Join(", ", response.Errors?.Select(e => e.Code) ?? []);
-                LogHandledWithErrors(logger, name, elapsed, codes);
-            }
-            else
-            {
-                LogHandled(logger, name, elapsed);
-            }
-
+            LogOutcome(name, response, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             return response;
         }
         catch (Exception ex)
@@ -45,6 +34,17 @@ public sealed partial class LoggingBehavior<TMessage, TResponse>(ILogger<Logging
             LogFailed(logger, ex, name, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             throw;
         }
+    }
+
+    private void LogOutcome(string name, TResponse response, double elapsedMs)
+    {
+        if (!response.IsError)
+        {
+            LogHandled(logger, name, elapsedMs);
+            return;
+        }
+
+        LogHandledWithErrors(logger, name, elapsedMs, string.Join(", ", response.Errors?.Select(e => e.Code) ?? []));
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Handling {Message}")]

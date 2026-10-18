@@ -48,12 +48,12 @@ public sealed class LayerDependencyTests
         AssertNoDependencies(InfrastructureAssembly, Api, "FastEndpoints");
 
     [Fact]
-    public void Endpoints_DoNotTouchPersistenceOrDomainDirectly()
+    public void ApiFeatures_DoNotTouchPersistenceOrDomainDirectly()
     {
         var result = Types
             .InAssembly(ApiAssembly)
             .That()
-            .ResideInNamespace("Verus.Api.Endpoints")
+            .ResideInNamespace("Verus.Api.Features")
             .ShouldNot()
             .HaveDependencyOnAny(Infrastructure, $"{Application}.Abstractions", "Microsoft.EntityFrameworkCore", Domain)
             .GetResult();

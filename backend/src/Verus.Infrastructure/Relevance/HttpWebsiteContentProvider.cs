@@ -44,17 +44,16 @@ internal sealed partial class HttpWebsiteContentProvider(
             var html = await ReadLimitedAsync(response.Content, cancellationToken);
             return Extract(html);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or TimeoutException)
+        // Network failures degrade to "no evidence"; if the caller gave up, the cancellation propagates.
+        catch (Exception ex) when (IsFetchFailure(ex) && !cancellationToken.IsCancellationRequested)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw;
-            }
-
             LogFetchFailed(logger, homePage, ex.Message);
             return null;
         }
     }
+
+    private static bool IsFetchFailure(Exception ex) =>
+        ex is HttpRequestException or TaskCanceledException or TimeoutException;
 
     internal static WebsiteMetadata Extract(string html)
     {

@@ -37,6 +37,8 @@ try
         .SwaggerDocument(options =>
         {
             options.MaxEndpointVersion = 1;
+            // Schema names and operation ids from type names, not namespaces, so moving files keeps the contract.
+            options.ShortSchemaNames = true;
             options.DocumentSettings = settings =>
             {
                 settings.DocumentName = "v1";
@@ -71,6 +73,7 @@ try
     app.UseFastEndpoints(config =>
     {
         config.Endpoints.RoutePrefix = "api";
+        config.Endpoints.ShortNames = true;
         config.Versioning.Prefix = "v";
         config.Versioning.PrependToRoute = true;
         config.Serializer.Options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;

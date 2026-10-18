@@ -1,6 +1,6 @@
 using FastEndpoints;
 
-namespace Verus.Api.Endpoints.Companies;
+namespace Verus.Api.Features.Companies;
 
 /// <summary>Route group: <c>/api/v{version}/companies</c>.</summary>
 internal sealed class CompaniesGroup : Group

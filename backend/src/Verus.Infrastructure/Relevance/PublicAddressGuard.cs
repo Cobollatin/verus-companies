@@ -18,13 +18,9 @@ internal static class PublicAddressGuard
             address = address.MapToIPv4();
         }
 
-        if (IPAddress.IsLoopback(address))
-        {
-            return false;
-        }
-
         return address.AddressFamily switch
         {
+            _ when IPAddress.IsLoopback(address) => false,
             AddressFamily.InterNetwork => IsPublicIPv4(address.GetAddressBytes()),
             AddressFamily.InterNetworkV6 => IsPublicIPv6(address),
             _ => false,
@@ -98,6 +94,3 @@ internal static class PublicAddressGuard
         return !(bytes[0] == 0x20 && bytes[1] == 0x01 && bytes[2] == 0x0d && bytes[3] == 0xb8); // 2001:db8::/32 docs
     }
 }
-
-/// <summary>Raised when a host resolves to a non-public address. Never retried.</summary>
-internal sealed class UnsafeAddressException(string message) : IOException(message);

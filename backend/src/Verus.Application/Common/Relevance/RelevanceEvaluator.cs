@@ -6,12 +6,6 @@ using Verus.Domain.Relevance;
 
 namespace Verus.Application.Common.Relevance;
 
-/// <summary>Decides whether a company name belongs to a website.</summary>
-public interface IRelevanceEvaluator
-{
-    Task<RelevanceAssessment> EvaluateAsync(CompanyName name, WebsiteUrl website, CancellationToken cancellationToken);
-}
-
 /// <summary>
 /// Strategy chain: (1) offline domain matching, then (2) — only if (1) fails and it is enabled —
 /// inspection of the home page's title / <c>og:site_name</c> / <c>application-name</c>.

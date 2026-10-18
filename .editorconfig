@@ -62,7 +62,7 @@ dotnet_diagnostic.CA1848.severity = suggestion
 dotnet_diagnostic.CA2007.severity = none     # no ConfigureAwait in ASP.NET Core apps
 dotnet_diagnostic.IDE0005.severity = warning # unnecessary usings
 dotnet_diagnostic.MA0004.severity = none     # ConfigureAwait (Meziantou)
-dotnet_diagnostic.MA0048.severity = none     # file name must match type name – slices group small types
+dotnet_diagnostic.MA0048.severity = warning  # one type per file, named after it
 dotnet_diagnostic.MA0006.severity = none     # == on strings is ordinal in C#; string.Equals adds noise
 dotnet_diagnostic.S1075.severity = none      # route templates and relative URLs are hardcoded by nature
 
@@ -72,3 +72,4 @@ dotnet_diagnostic.CA1515.severity = none
 dotnet_diagnostic.CA2234.severity = none
 dotnet_diagnostic.S2699.severity = none
 dotnet_diagnostic.MA0002.severity = none     # assertion helpers don't need explicit comparers
+dotnet_diagnostic.MA0048.severity = none     # test files group fixtures and small test DTOs

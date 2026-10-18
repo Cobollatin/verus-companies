@@ -47,7 +47,7 @@ Schwarzmüller / Pocock / Morony (standalone, smart/dumb split, strict types, de
   src/Verus.Application       # Features/Companies/{CreateCompany,GetCompanyById,SearchCompanies}/ (command|query, handler, validator, response DTO)
                               # Abstractions/ (ICompanyRepository, IWebsiteContentProvider), Behaviors/, Paging/
   src/Verus.Infrastructure    # Persistence/ (AppDbContext, CompanyConfiguration, CompanyRepository), Relevance/ (HttpWebsiteContentProvider), DependencyInjection.cs
-  src/Verus.Api               # Endpoints/Companies/{Create,GetById,Search}.cs, ErrorOr→ProblemDetails mapping, Program.cs, launchSettings (5000/7000)
+  src/Verus.Api               # Features/Companies/<UseCase>/{Endpoint,Request,Summary}.cs, ErrorOr→ProblemDetails mapping, Program.cs, launchSettings (5000/7000)
   tests/Verus.Domain.Tests  tests/Verus.Application.Tests  tests/Verus.Api.IntegrationTests  tests/Verus.ArchitectureTests
 /frontend   (Angular 21 workspace, pnpm)
   src/app/core/          # http error interceptor, ProblemDetails parsing, API base-url token, app config

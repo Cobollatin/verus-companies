@@ -44,33 +44,39 @@ internal sealed class CompanyRepository(AppDbContext db) : ICompanyRepository
     // string.ToLower() (not ToLowerInvariant / StringComparison overloads) is what relational providers
     // translate to LOWER(); a real database would use a case-insensitive collation instead.
 #pragma warning disable CA1304, CA1311, CA1862, MA0011
-    private static IQueryable<Company> Filter(IQueryable<Company> query, CompanyFilter filter)
+    private static IQueryable<Company> Filter(IQueryable<Company> query, CompanyFilter filter) =>
+        FilterByDomain(FilterByName(query, filter.NameContains), filter.Domain);
+
+    private static IQueryable<Company> FilterByName(IQueryable<Company> query, string? nameContains)
     {
-        if (!string.IsNullOrWhiteSpace(filter.NameContains))
+        if (string.IsNullOrWhiteSpace(nameContains))
         {
-            var term = filter.NameContains.ToLowerInvariant();
-            query = query.Where(c => c.Name.Value.ToLower().Contains(term));
+            return query;
         }
 
-        if (!string.IsNullOrWhiteSpace(filter.Domain))
+        var term = nameContains.ToLowerInvariant();
+        return query.Where(c => c.Name.Value.ToLower().Contains(term));
+    }
+
+    /// <summary><c>example.com</c> matches the domain and its subdomains; a fragment matches any host containing it.</summary>
+    private static IQueryable<Company> FilterByDomain(IQueryable<Company> query, string? domain)
+    {
+        if (string.IsNullOrWhiteSpace(domain))
         {
-            var domain = filter.Domain;
-            if (domain.Contains('.', StringComparison.Ordinal))
-            {
-                var subdomainSuffix = "." + domain;
-                query = query.Where(c =>
-                    c.Website.Host == domain
-                    || c.Website.RegistrableDomain == domain
-                    || c.Website.Host.EndsWith(subdomainSuffix)
-                );
-            }
-            else
-            {
-                query = query.Where(c => c.Website.Host.Contains(domain));
-            }
+            return query;
         }
 
-        return query;
+        if (!domain.Contains('.', StringComparison.Ordinal))
+        {
+            return query.Where(c => c.Website.Host.Contains(domain));
+        }
+
+        var subdomainSuffix = "." + domain;
+        return query.Where(c =>
+            c.Website.Host == domain
+            || c.Website.RegistrableDomain == domain
+            || c.Website.Host.EndsWith(subdomainSuffix)
+        );
     }
 
     private static IOrderedQueryable<Company> Sort(IQueryable<Company> query, CompanySort sort) =>

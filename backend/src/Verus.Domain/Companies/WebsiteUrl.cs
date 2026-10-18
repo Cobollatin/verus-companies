@@ -31,46 +31,40 @@ public sealed record WebsiteUrl
     /// <summary>Registrable domain without its public suffix, e.g. <c>example</c>.</summary>
     public string DomainLabel { get; }
 
-    public static ErrorOr<WebsiteUrl> Create(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+    public static ErrorOr<WebsiteUrl> Create(string? value) =>
+        value?.Trim() switch
         {
-            return CompanyErrors.WebsiteRequired;
-        }
-
-        var trimmed = value.Trim();
-
-        if (trimmed.Length > MaxLength)
-        {
-            return CompanyErrors.WebsiteTooLong;
-        }
-
-        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri) || !uri.IsWellFormedOriginalString())
-        {
-            return CompanyErrors.WebsiteInvalid;
-        }
-
-        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-        {
-            return CompanyErrors.WebsiteSchemeNotSupported;
-        }
-
-        if (!string.IsNullOrEmpty(uri.UserInfo) || uri.HostNameType != UriHostNameType.Dns)
-        {
-            return CompanyErrors.WebsiteInvalid;
-        }
-
-        var host = uri.IdnHost.ToLowerInvariant();
-
-        if (!PublicSuffix.TryParse(host, out var registrableDomain, out var label))
-        {
-            return CompanyErrors.WebsiteUnknownDomain;
-        }
-
-        return new WebsiteUrl(Normalize(uri), host, registrableDomain, label);
-    }
+            null or "" => CompanyErrors.WebsiteRequired,
+            { Length: > MaxLength } => CompanyErrors.WebsiteTooLong,
+            var trimmed => FromAbsoluteUrl(trimmed),
+        };
 
     public override string ToString() => Value;
+
+    private static ErrorOr<WebsiteUrl> FromAbsoluteUrl(string text)
+    {
+        if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || !uri.IsWellFormedOriginalString())
+        {
+            return CompanyErrors.WebsiteInvalid;
+        }
+
+        // Uri.Scheme is always lower-case.
+        return uri switch
+        {
+            { Scheme: not ("http" or "https") } => CompanyErrors.WebsiteSchemeNotSupported,
+            { UserInfo.Length: > 0 } or { HostNameType: not UriHostNameType.Dns } => CompanyErrors.WebsiteInvalid,
+            _ => FromDomainName(uri),
+        };
+    }
+
+    private static ErrorOr<WebsiteUrl> FromDomainName(Uri uri)
+    {
+        var host = uri.IdnHost.ToLowerInvariant();
+
+        return PublicSuffix.TryParse(host, out var registrableDomain, out var label)
+            ? new WebsiteUrl(Normalize(uri), host, registrableDomain, label)
+            : CompanyErrors.WebsiteUnknownDomain;
+    }
 
     private static string Normalize(Uri uri)
     {

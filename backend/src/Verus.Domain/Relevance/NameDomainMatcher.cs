@@ -81,18 +81,9 @@ public static class NameDomainMatcher
     }
 
     /// <summary>Initials of the leading words followed by the remaining words: "New York Times" ↔ nytimes.</summary>
-    private static bool IsPartialAcronym(IReadOnlyList<string> tokens, string label)
-    {
-        for (var split = 2; split < tokens.Count; split++)
-        {
-            var initials = string.Concat(tokens.Take(split).Select(t => t[0]));
-            var rest = string.Concat(tokens.Skip(split));
-            if (string.Equals(initials + rest, label, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    private static bool IsPartialAcronym(IReadOnlyList<string> tokens, string label) =>
+        Enumerable
+            .Range(2, Math.Max(tokens.Count - 2, 0))
+            .Select(split => string.Concat(tokens.Take(split).Select(t => t[0])) + string.Concat(tokens.Skip(split)))
+            .Contains(label, StringComparer.Ordinal);
 }

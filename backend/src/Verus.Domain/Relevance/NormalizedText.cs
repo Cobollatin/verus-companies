@@ -97,44 +97,17 @@ public sealed class NormalizedText
     private static List<string> Tokenize(string text)
     {
         var folded = RemoveDiacritics(text).Replace("&", " and ", StringComparison.Ordinal);
-        var tokens = new List<string>();
-        var current = new StringBuilder();
+        var separated = folded.Select(c => char.IsLetterOrDigit(c) ? char.ToLowerInvariant(c) : ' ');
 
-        foreach (var c in folded)
-        {
-            if (char.IsLetterOrDigit(c))
-            {
-                current.Append(char.ToLowerInvariant(c));
-            }
-            else if (current.Length > 0)
-            {
-                tokens.Add(current.ToString());
-                current.Clear();
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            tokens.Add(current.ToString());
-        }
-
-        return tokens;
+        return [.. new string([.. separated]).Split(' ', StringSplitOptions.RemoveEmptyEntries)];
     }
 
     private static string RemoveDiacritics(string text)
     {
-        var decomposed = text.Normalize(NormalizationForm.FormD);
-        var builder = new StringBuilder(decomposed.Length);
+        var withoutMarks = text.Normalize(NormalizationForm.FormD)
+            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
 
-        foreach (var c in decomposed)
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-            {
-                builder.Append(c);
-            }
-        }
-
-        return builder.ToString().Normalize(NormalizationForm.FormC);
+        return string.Concat(withoutMarks).Normalize(NormalizationForm.FormC);
     }
 
     private static FrozenSet<string> BuildAcronyms(IReadOnlyList<string> tokens, IReadOnlyList<string> significant)

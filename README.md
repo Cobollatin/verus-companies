@@ -156,7 +156,8 @@ backend/src
                         each slice = command/query + validator + handler; ports in Abstractions/;
                         Mediator pipeline: LoggingBehavior → ValidationBehavior → handler
   Verus.Infrastructure  EF Core (InMemory) AppDbContext + repository, HTTP content provider + SSRF guard
-  Verus.Api             FastEndpoints (thin: bind → mediator.Send → map ErrorOr to HTTP), Serilog, OpenAPI
+  Verus.Api             Features/Companies/<UseCase>/ = endpoint + request DTO + OpenAPI summary
+                        (thin: bind → mediator.Send → map ErrorOr to HTTP), Serilog, OpenAPI
 backend/tests           Domain, Application (NSubstitute), Api integration (WebApplicationFactory), Architecture (NetArchTest)
 
 frontend/src/app

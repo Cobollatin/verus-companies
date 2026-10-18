@@ -40,13 +40,17 @@ Dependency rule (enforced by `tests/Verus.ArchitectureTests`):
   Errors are RFC 9457 ProblemDetails. Routes: `/api/v1/...`.
 
 ### Adding a backend use case (recipe)
-1. `Application/Features/Companies/<UseCase>/` — `<UseCase>Command|Query.cs` (record implementing `ICommand<ErrorOr<T>>`/`IQuery<...>`),
-   `<UseCase>Validator.cs`, `<UseCase>Handler.cs`.
+1. `Application/Features/Companies/<UseCase>/` — one file each: `<UseCase>Command|Query.cs` (record implementing
+   `ICommand<ErrorOr<T>>`/`IQuery<...>`), `<UseCase>Validator.cs`, `<UseCase>Handler.cs`, plus any slice-private helpers.
 2. Extend the repository port only if needed; implement it in Infrastructure.
-3. `Api/Endpoints/Companies/<UseCase>Endpoint.cs` — thin, returns `TypedResults`, maps errors via `ToProblem()`.
+3. `Api/Features/Companies/<UseCase>/` — `<UseCase>Endpoint.cs` (route + `mediator.Send` + `ToOk`/`ToCreated`, nothing else),
+   `<UseCase>Request.cs` (DTO), `<UseCase>Summary.cs` (OpenAPI text, a `Summary<TEndpoint>` picked up automatically).
 4. Tests: handler unit test + endpoint integration test.
 
 ### Conventions
+- **One type per file**, named after it (MA0048 is an error in `src`). DTOs never share a file with an endpoint or handler.
+- **Flat control flow:** guard clauses and early returns instead of nested `if`s; a `switch` expression (patterns +
+  `when`) instead of `if` chains that pick one of several results.
 - Expected failures → `ErrorOr` errors (`Validation`, `NotFound`, `Conflict`). Exceptions only for bugs/infrastructure.
 - External contracts are DTO records. Never return domain entities or EF types from endpoints.
 - Log key operations with `LoggerMessage` source-generated methods.
