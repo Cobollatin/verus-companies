@@ -38,8 +38,8 @@ pnpm start
 The Angular dev server proxies `/api` to `http://localhost:5000` (`frontend/proxy.conf.json`), so the
 browser makes same-origin calls. CORS is still enabled for `http://localhost:4200` so other clients can call the API directly.
 
-To exercise the API without the UI, use `backend/src/Verus.Api/Companies.http` (VS Code REST Client / Rider /
-Visual Studio), Postman, or curl:
+To exercise the API without the UI, use the Postman collection (below), `backend/src/Verus.Api/Companies.http`
+(VS Code REST Client / Rider / Visual Studio), or curl:
 
 ```bash
 curl -i -X POST http://localhost:5000/api/v1/companies \
@@ -48,6 +48,23 @@ curl -i -X POST http://localhost:5000/api/v1/companies \
 
 curl "http://localhost:5000/api/v1/companies?q=micro"
 ```
+
+### Postman collection
+
+`postman/Verus.postman_collection.json` covers every use case: 48 requests in 6 folders (successful creates for
+each relevance rule, every validation error, 409, get by id, list, filter, sort, paging, relevance search and query
+errors). Each request has tests and a saved example response captured from the real API. Import it together with
+`postman/Verus.local.postman_environment.json`.
+
+Run it **in order against a freshly started API**: the creates seed the in-memory store and save `companyId`, and
+later requests depend on that data. Restart the API before running it again, since domains must be unique.
+From the command line:
+
+```bash
+pnpm dlx newman run postman/Verus.postman_collection.json -e postman/Verus.local.postman_environment.json
+```
+
+The "Content fallback" request fetches news.ycombinator.com, so it needs internet access.
 
 ## Quality gates
 

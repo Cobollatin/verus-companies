@@ -1,0 +1,4172 @@
+{
+  "info": {
+    "name": "Verus Companies API",
+    "description": "Every use case of the Verus Companies API (`/api/v1`), with tests and a saved example response per request.\n\n**Run order matters.** Start the API fresh (`cd backend/src/Verus.Api && dotnet run`) and run the whole\ncollection: the create requests seed the in-memory store and save `companyId`, and the duplicate (409),\nget-by-id, list and search requests depend on that data. Restart the API before running it again, since domains\nmust be unique.\n\n`baseUrl` defaults to `http://localhost:5000/api/v1`; set it to `https://localhost:7000/api/v1` to use https.\nThe \"Content fallback\" request fetches news.ycombinator.com, so it needs internet access.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create company — success",
+      "description": "POST /companies → **201 Created** with a `Location` header and the company. Each request shows a different relevance rule that links the name to the website. Run the folders in order: later requests use the ids saved here.",
+      "item": [
+        {
+          "name": "Exact domain match (Microsoft ↔ microsoft.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is microsoft.com', () => pm.expect(c.domain).to.eql('microsoft.com'));",
+                  "pm.collectionVariables.set('companyId', c.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Microsoft\",\n  \"websiteUrl\": \"https://www.microsoft.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The squashed, normalized name equals the domain label → score 1.0. Saves `companyId`."
+          },
+          "response": [
+            {
+              "name": "Exact domain match (Microsoft ↔ microsoft.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Microsoft\",\n  \"websiteUrl\": \"https://www.microsoft.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1abc-756d-8759-3688873be9c1"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n  \"name\": \"Microsoft\",\n  \"websiteUrl\": \"https://www.microsoft.com\",\n  \"domain\": \"microsoft.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Acronym (International Business Machines ↔ ibm.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is ibm.com', () => pm.expect(c.domain).to.eql('ibm.com'));",
+                  "pm.collectionVariables.set('ibmId', c.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"International Business Machines\",\n  \"websiteUrl\": \"https://www.ibm.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The initials of the name form the domain label → score 0.85."
+          },
+          "response": [
+            {
+              "name": "Acronym (International Business Machines ↔ ibm.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"International Business Machines\",\n  \"websiteUrl\": \"https://www.ibm.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1b25-7dab-8ee7-dce82f5a5b74"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n  \"name\": \"International Business Machines\",\n  \"websiteUrl\": \"https://www.ibm.com\",\n  \"domain\": \"ibm.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Partial acronym (The New York Times ↔ nytimes.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is nytimes.com', () => pm.expect(c.domain).to.eql('nytimes.com'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"The New York Times\",\n  \"websiteUrl\": \"https://www.nytimes.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Initials of the leading words plus the last word (\"ny\" + \"times\")."
+          },
+          "response": [
+            {
+              "name": "Partial acronym (The New York Times ↔ nytimes.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"The New York Times\",\n  \"websiteUrl\": \"https://www.nytimes.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1b2e-74a3-bb48-9682f07ad4fd"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n  \"name\": \"The New York Times\",\n  \"websiteUrl\": \"https://www.nytimes.com\",\n  \"domain\": \"nytimes.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Legal suffix stripped (Stripe, Inc. ↔ stripe.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is stripe.com', () => pm.expect(c.domain).to.eql('stripe.com'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Stripe, Inc.\",\n  \"websiteUrl\": \"https://stripe.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Legal suffixes (Inc, LLC, GmbH, S.A., …) and punctuation are removed before matching."
+          },
+          "response": [
+            {
+              "name": "Legal suffix stripped (Stripe, Inc. ↔ stripe.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Stripe, Inc.\",\n  \"websiteUrl\": \"https://stripe.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1b37-72b5-a0ce-47087bd90d77"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1b37-72b5-a0ce-47087bd90d77\",\n  \"name\": \"Stripe, Inc.\",\n  \"websiteUrl\": \"https://stripe.com\",\n  \"domain\": \"stripe.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.543435+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Multi-part public suffix (BBC ↔ www.bbc.co.uk)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is bbc.co.uk', () => pm.expect(c.domain).to.eql('bbc.co.uk'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"BBC\",\n  \"websiteUrl\": \"https://www.bbc.co.uk\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The registrable domain comes from the Public Suffix List, so `www.bbc.co.uk` → `bbc.co.uk` and the label is `bbc`."
+          },
+          "response": [
+            {
+              "name": "Multi-part public suffix (BBC ↔ www.bbc.co.uk)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"BBC\",\n  \"websiteUrl\": \"https://www.bbc.co.uk\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1b40-7935-96df-f7ec5a78763e"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1b40-7935-96df-f7ec5a78763e\",\n  \"name\": \"BBC\",\n  \"websiteUrl\": \"https://www.bbc.co.uk\",\n  \"domain\": \"bbc.co.uk\",\n  \"createdAt\": \"2026-10-18T01:42:55.5522633+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Name contains the domain (Delta Air Lines ↔ delta.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is delta.com', () => pm.expect(c.domain).to.eql('delta.com'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Delta Air Lines\",\n  \"websiteUrl\": \"https://www.delta.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The name starts with the domain label → score 0.9."
+          },
+          "response": [
+            {
+              "name": "Name contains the domain (Delta Air Lines ↔ delta.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Delta Air Lines\",\n  \"websiteUrl\": \"https://www.delta.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1b4a-71f8-923b-1a703ff6c316"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1b4a-71f8-923b-1a703ff6c316\",\n  \"name\": \"Delta Air Lines\",\n  \"websiteUrl\": \"https://www.delta.com\",\n  \"domain\": \"delta.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.5623782+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Fuzzy match tolerates a typo (Netflx ↔ netflix.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is netflix.com', () => pm.expect(c.domain).to.eql('netflix.com'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Netflx\",\n  \"websiteUrl\": \"https://www.netflix.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Jaro-Winkler similarity of the squashed strings, capped at 0.95."
+          },
+          "response": [
+            {
+              "name": "Fuzzy match tolerates a typo (Netflx ↔ netflix.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Netflx\",\n  \"websiteUrl\": \"https://www.netflix.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1b51-7b98-ad6a-f3c4af2331ed"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1b51-7b98-ad6a-f3c4af2331ed\",\n  \"name\": \"Netflx\",\n  \"websiteUrl\": \"https://www.netflix.com\",\n  \"domain\": \"netflix.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.5699032+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Content fallback (Hacker News ↔ news.ycombinator.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Location header points to the new company', () => {",
+                  "  pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/v1/companies/' + c.id + '$'));",
+                  "});",
+                  "pm.test('Domain is ycombinator.com', () => pm.expect(c.domain).to.eql('ycombinator.com'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacker News\",\n  \"websiteUrl\": \"https://news.ycombinator.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The domain alone does not match, so the API fetches the home page and finds the name in its `<title>`. **Needs internet access** from the API host (and `Relevance:EnableContentInspection=true`)."
+          },
+          "response": [
+            {
+              "name": "Content fallback (Hacker News ↔ news.ycombinator.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Hacker News\",\n  \"websiteUrl\": \"https://news.ycombinator.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/companies/01a14cad-1e75-7656-9ba7-050b3ff0d8f7"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1e75-7656-9ba7-050b3ff0d8f7\",\n  \"name\": \"Hacker News\",\n  \"websiteUrl\": \"https://news.ycombinator.com\",\n  \"domain\": \"ycombinator.com\",\n  \"createdAt\": \"2026-10-18T01:42:56.3737931+00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Create company — errors",
+      "description": "Every failure is `application/problem+json` (RFC 9457) with one entry per invalid field in `errors[]`: `{ name, reason, code }`.",
+      "item": [
+        {
+          "name": "400 — name not relevant to the website (Apple ↔ amazon.com)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'websiteUrl' with code Company.Website.NotRelevant\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'websiteUrl');",
+                  "  pm.expect(e, 'error for websiteUrl').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Website.NotRelevant');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apple\",\n  \"websiteUrl\": \"https://www.amazon.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The message explains the best evidence found."
+          },
+          "response": [
+            {
+              "name": "400 — name not relevant to the website (Apple ↔ amazon.com)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Apple\",\n  \"websiteUrl\": \"https://www.amazon.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000005\",\n  \"detail\": \"The company name does not match the website. Domain 'amazon.com' does not resemble 'Apple' (best match 46%). The website's title and metadata do not mention 'Apple'.\",\n  \"errors\": [\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"The company name does not match the website. Domain 'amazon.com' does not resemble 'Apple' (best match 46%). The website's title and metadata do not mention 'Apple'.\",\n      \"code\": \"Company.Website.NotRelevant\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — both fields missing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'name' with code Company.Name.Required\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'name');",
+                  "  pm.expect(e, 'error for name').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Name.Required');",
+                  "});",
+                  "pm.test('Website error too', () => pm.expect(p.errors.map((e) => e.code)).to.include('Company.Website.Required'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"websiteUrl\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "All field errors come back in one response."
+          },
+          "response": [
+            {
+              "name": "400 — both fields missing",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"\",\n  \"websiteUrl\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000005\",\n  \"detail\": \"Company name is required.\",\n  \"errors\": [\n    {\n      \"name\": \"name\",\n      \"reason\": \"Company name is required.\",\n      \"code\": \"Company.Name.Required\"\n    },\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"Website URL is required.\",\n      \"code\": \"Company.Website.Required\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — empty body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'name' with code Company.Name.Required\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'name');",
+                  "  pm.expect(e, 'error for name').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Name.Required');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Missing properties are treated as empty."
+          },
+          "response": [
+            {
+              "name": "400 — empty body",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000006\",\n  \"detail\": \"Company name is required.\",\n  \"errors\": [\n    {\n      \"name\": \"name\",\n      \"reason\": \"Company name is required.\",\n      \"code\": \"Company.Name.Required\"\n    },\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"Website URL is required.\",\n      \"code\": \"Company.Website.Required\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — name too short",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'name' with code Company.Name.TooShort\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'name');",
+                  "  pm.expect(e, 'error for name').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Name.TooShort');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ab\",\n  \"websiteUrl\": \"https://ab.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Names need at least 3 characters."
+          },
+          "response": [
+            {
+              "name": "400 — name too short",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Ab\",\n  \"websiteUrl\": \"https://ab.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000006\",\n  \"detail\": \"Company name must be at least 3 characters long.\",\n  \"errors\": [\n    {\n      \"name\": \"name\",\n      \"reason\": \"Company name must be at least 3 characters long.\",\n      \"code\": \"Company.Name.TooShort\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — name too long",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'name' with code Company.Name.TooLong\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'name');",
+                  "  pm.expect(e, 'error for name').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Name.TooLong');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\n  \"websiteUrl\": \"https://aaaa.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Names are limited to 200 characters."
+          },
+          "response": [
+            {
+              "name": "400 — name too long",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\n  \"websiteUrl\": \"https://aaaa.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000007\",\n  \"detail\": \"Company name must be at most 200 characters long.\",\n  \"errors\": [\n    {\n      \"name\": \"name\",\n      \"reason\": \"Company name must be at most 200 characters long.\",\n      \"code\": \"Company.Name.TooLong\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — name without letters or digits",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'name' with code Company.Name.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'name');",
+                  "  pm.expect(e, 'error for name').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Name.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"!!!\",\n  \"websiteUrl\": \"https://acme.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Punctuation alone is not a name."
+          },
+          "response": [
+            {
+              "name": "400 — name without letters or digits",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"!!!\",\n  \"websiteUrl\": \"https://acme.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000007\",\n  \"detail\": \"Company name must contain letters or digits.\",\n  \"errors\": [\n    {\n      \"name\": \"name\",\n      \"reason\": \"Company name must contain letters or digits.\",\n      \"code\": \"Company.Name.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — malformed URL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'websiteUrl' with code Company.Website.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'websiteUrl');",
+                  "  pm.expect(e, 'error for websiteUrl').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Website.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"not-a-url\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The URL must be absolute."
+          },
+          "response": [
+            {
+              "name": "400 — malformed URL",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"not-a-url\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000008\",\n  \"detail\": \"Website URL must be a valid absolute URL, e.g. https://www.example.com.\",\n  \"errors\": [\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"Website URL must be a valid absolute URL, e.g. https://www.example.com.\",\n      \"code\": \"Company.Website.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — unsupported scheme",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'websiteUrl' with code Company.Website.SchemeNotSupported\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'websiteUrl');",
+                  "  pm.expect(e, 'error for websiteUrl').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Website.SchemeNotSupported');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"ftp://acme.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Only http and https are accepted."
+          },
+          "response": [
+            {
+              "name": "400 — unsupported scheme",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"ftp://acme.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000008\",\n  \"detail\": \"Website URL must start with http:// or https://.\",\n  \"errors\": [\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"Website URL must start with http:// or https://.\",\n      \"code\": \"Company.Website.SchemeNotSupported\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — IP address instead of a domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'websiteUrl' with code Company.Website.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'websiteUrl');",
+                  "  pm.expect(e, 'error for websiteUrl').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Website.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"https://127.0.0.1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Websites must use a domain name."
+          },
+          "response": [
+            {
+              "name": "400 — IP address instead of a domain",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"https://127.0.0.1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000009\",\n  \"detail\": \"Website URL must be a valid absolute URL, e.g. https://www.example.com.\",\n  \"errors\": [\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"Website URL must be a valid absolute URL, e.g. https://www.example.com.\",\n      \"code\": \"Company.Website.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — unknown top-level domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'websiteUrl' with code Company.Website.UnknownDomain\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'websiteUrl');",
+                  "  pm.expect(e, 'error for websiteUrl').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Website.UnknownDomain');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"https://acme.notatld\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "The host must have a registrable domain under a public suffix."
+          },
+          "response": [
+            {
+              "name": "400 — unknown top-level domain",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acme\",\n  \"websiteUrl\": \"https://acme.notatld\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000009\",\n  \"detail\": \"Website URL must use a registrable domain name with a known top-level domain.\",\n  \"errors\": [\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"Website URL must use a registrable domain name with a known top-level domain.\",\n      \"code\": \"Company.Website.UnknownDomain\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — invalid JSON body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'body'\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'body');",
+                  "  pm.expect(e, 'error for body').to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"name\": \"Acme\", ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "A syntactically broken body is reported as a body error."
+          },
+          "response": [
+            {
+              "name": "400 — invalid JSON body",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \"name\": \"Acme\", ",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:0000000A\",\n  \"detail\": \"The request body is not valid JSON.\",\n  \"errors\": [\n    {\n      \"name\": \"body\",\n      \"reason\": \"The request body is not valid JSON.\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "409 — website domain already registered",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', () => pm.response.to.have.status(409));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(409);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'websiteUrl' with code Company.Website.Duplicate\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'websiteUrl');",
+                  "  pm.expect(e, 'error for websiteUrl').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.Website.Duplicate');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Microsoft Corporation\",\n  \"websiteUrl\": \"https://microsoft.com/en-us\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Domains are unique: `microsoft.com/en-us` has the same registrable domain as the company created first."
+          },
+          "response": [
+            {
+              "name": "409 — website domain already registered",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Microsoft Corporation\",\n  \"websiteUrl\": \"https://microsoft.com/en-us\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.8\",\n  \"title\": \"Conflict\",\n  \"status\": 409,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:0000000A\",\n  \"detail\": \"A company with the website domain 'microsoft.com' is already registered.\",\n  \"errors\": [\n    {\n      \"name\": \"websiteUrl\",\n      \"reason\": \"A company with the website domain 'microsoft.com' is already registered.\",\n      \"code\": \"Company.Website.Duplicate\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Get company by id",
+      "description": "GET /companies/{id}.",
+      "item": [
+        {
+          "name": "200 — existing company",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json();",
+                  "pm.test('Body is a company', () => {",
+                  "  pm.expect(c).to.have.all.keys('id', 'name', 'websiteUrl', 'domain', 'createdAt');",
+                  "  pm.expect(c.id).to.match(/^[0-9a-f-]{36}$/);",
+                  "});",
+                  "pm.test('Is the saved company', () => pm.expect(c.id).to.eql(pm.collectionVariables.get('companyId')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies/{{companyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "{{companyId}}"
+              ]
+            },
+            "description": "Uses `companyId` saved by the first create request."
+          },
+          "response": [
+            {
+              "name": "200 — existing company",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies/{{companyId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies",
+                    "{{companyId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n  \"name\": \"Microsoft\",\n  \"websiteUrl\": \"https://www.microsoft.com\",\n  \"domain\": \"microsoft.com\",\n  \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "404 — unknown id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(404);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'generalErrors' with code Company.NotFound\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'generalErrors');",
+                  "  pm.expect(e, 'error for generalErrors').to.exist;",
+                  "  pm.expect(e.code).to.eql('Company.NotFound');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies/0199e9a0-0000-7000-8000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "0199e9a0-0000-7000-8000-000000000000"
+              ]
+            },
+            "description": "A well-formed id that does not exist."
+          },
+          "response": [
+            {
+              "name": "404 — unknown id",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies/0199e9a0-0000-7000-8000-000000000000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies",
+                    "0199e9a0-0000-7000-8000-000000000000"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.4\",\n  \"title\": \"Resource not found\",\n  \"status\": 404,\n  \"instance\": \"/api/v1/companies/0199e9a0-0000-7000-8000-000000000000\",\n  \"traceId\": \"0HNPCN3JRB53A:0000000B\",\n  \"detail\": \"No company exists with id '0199e9a0-0000-7000-8000-000000000000'.\",\n  \"errors\": [\n    {\n      \"name\": \"generalErrors\",\n      \"reason\": \"No company exists with id '0199e9a0-0000-7000-8000-000000000000'.\",\n      \"code\": \"Company.NotFound\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — malformed id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'id'\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'id');",
+                  "  pm.expect(e, 'error for id').to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies/not-a-guid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "not-a-guid"
+              ]
+            },
+            "description": "Not a GUID → bad input rather than not found."
+          },
+          "response": [
+            {
+              "name": "400 — malformed id",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies/not-a-guid",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies",
+                    "not-a-guid"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies/not-a-guid\",\n  \"traceId\": \"0HNPCN3JRB539:0000000C\",\n  \"detail\": \"Value [not-a-guid] is not valid for a [Guid] property!\",\n  \"errors\": [\n    {\n      \"name\": \"id\",\n      \"reason\": \"Value [not-a-guid] is not valid for a [Guid] property!\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. List and filter companies",
+      "description": "GET /companies. No parameters returns everything (paged). `name` and `domain` filter; `sort`, `page` and `pageSize` shape the page. No match is still a **200** with empty `items`.",
+      "item": [
+        {
+          "name": "All companies (default paging)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Contains the created companies, sorted by name', () => {",
+                  "  pm.expect(page.totalCount).to.be.at.least(8);",
+                  "  const names = page.items.map((c) => c.name.toLowerCase());",
+                  "  pm.expect(names).to.eql([...names].sort());",
+                  "});",
+                  "pm.test('No relevance score without q', () => page.items.forEach((c) => pm.expect(c).to.not.have.property('relevanceScore')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Defaults: page 1, pageSize 20, sorted by name."
+          },
+          "response": [
+            {
+              "name": "All companies (default paging)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b40-7935-96df-f7ec5a78763e\",\n      \"name\": \"BBC\",\n      \"websiteUrl\": \"https://www.bbc.co.uk\",\n      \"domain\": \"bbc.co.uk\",\n      \"createdAt\": \"2026-10-18T01:42:55.5522633+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b4a-71f8-923b-1a703ff6c316\",\n      \"name\": \"Delta Air Lines\",\n      \"websiteUrl\": \"https://www.delta.com\",\n      \"domain\": \"delta.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5623782+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1e75-7656-9ba7-050b3ff0d8f7\",\n      \"name\": \"Hacker News\",\n      \"websiteUrl\": \"https://news.ycombinator.com\",\n      \"domain\": \"ycombinator.com\",\n      \"createdAt\": \"2026-10-18T01:42:56.3737931+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n      \"name\": \"International Business Machines\",\n      \"websiteUrl\": \"https://www.ibm.com\",\n      \"domain\": \"ibm.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n      \"name\": \"Microsoft\",\n      \"websiteUrl\": \"https://www.microsoft.com\",\n      \"domain\": \"microsoft.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b51-7b98-ad6a-f3c4af2331ed\",\n      \"name\": \"Netflx\",\n      \"websiteUrl\": \"https://www.netflix.com\",\n      \"domain\": \"netflix.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5699032+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b37-72b5-a0ce-47087bd90d77\",\n      \"name\": \"Stripe, Inc.\",\n      \"websiteUrl\": \"https://stripe.com\",\n      \"domain\": \"stripe.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.543435+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n      \"name\": \"The New York Times\",\n      \"websiteUrl\": \"https://www.nytimes.com\",\n      \"domain\": \"nytimes.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 8,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Filter by partial name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Only Microsoft', () => pm.expect(page.items.map((c) => c.name)).to.eql(['Microsoft']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?name=MICRO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "MICRO"
+                }
+              ]
+            },
+            "description": "Case-insensitive substring match."
+          },
+          "response": [
+            {
+              "name": "Filter by partial name",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?name=MICRO",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "MICRO"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n      \"name\": \"Microsoft\",\n      \"websiteUrl\": \"https://www.microsoft.com\",\n      \"domain\": \"microsoft.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Filter by exact domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Only ibm.com', () => pm.expect(page.items.map((c) => c.domain)).to.eql(['ibm.com']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?domain=ibm.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "domain",
+                  "value": "ibm.com"
+                }
+              ]
+            },
+            "description": "`example.com` matches the domain and its subdomains."
+          },
+          "response": [
+            {
+              "name": "Filter by exact domain",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?domain=ibm.com",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "domain",
+                      "value": "ibm.com"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n      \"name\": \"International Business Machines\",\n      \"websiteUrl\": \"https://www.ibm.com\",\n      \"domain\": \"ibm.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Filter by domain fragment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Only nytimes.com', () => pm.expect(page.items.map((c) => c.domain)).to.eql(['nytimes.com']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?domain=times",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "domain",
+                  "value": "times"
+                }
+              ]
+            },
+            "description": "A fragment without a dot matches any host containing it."
+          },
+          "response": [
+            {
+              "name": "Filter by domain fragment",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?domain=times",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "domain",
+                      "value": "times"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n      \"name\": \"The New York Times\",\n      \"websiteUrl\": \"https://www.nytimes.com\",\n      \"domain\": \"nytimes.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Filter by pasted URL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Only bbc.co.uk', () => pm.expect(page.items.map((c) => c.domain)).to.eql(['bbc.co.uk']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?domain=https://www.bbc.co.uk/news",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "domain",
+                  "value": "https://www.bbc.co.uk/news"
+                }
+              ]
+            },
+            "description": "A full URL is reduced to its domain."
+          },
+          "response": [
+            {
+              "name": "Filter by pasted URL",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?domain=https://www.bbc.co.uk/news",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "domain",
+                      "value": "https://www.bbc.co.uk/news"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b40-7935-96df-f7ec5a78763e\",\n      \"name\": \"BBC\",\n      \"websiteUrl\": \"https://www.bbc.co.uk\",\n      \"domain\": \"bbc.co.uk\",\n      \"createdAt\": \"2026-10-18T01:42:55.5522633+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Combine name and domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Only Netflx', () => pm.expect(page.items.map((c) => c.name)).to.eql(['Netflx']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?name=net&domain=netflix.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "net"
+                },
+                {
+                  "key": "domain",
+                  "value": "netflix.com"
+                }
+              ]
+            },
+            "description": "Filters are combined with AND."
+          },
+          "response": [
+            {
+              "name": "Combine name and domain",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?name=net&domain=netflix.com",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "net"
+                    },
+                    {
+                      "key": "domain",
+                      "value": "netflix.com"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b51-7b98-ad6a-f3c4af2331ed\",\n      \"name\": \"Netflx\",\n      \"websiteUrl\": \"https://www.netflix.com\",\n      \"domain\": \"netflix.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5699032+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Empty result is 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Empty page', () => {",
+                  "  pm.expect(page.items).to.be.empty;",
+                  "  pm.expect(page.totalCount).to.eql(0);",
+                  "  pm.expect(page.totalPages).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?name=zzz",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "zzz"
+                }
+              ]
+            },
+            "description": "Nothing matches → empty `items`, `totalCount` 0."
+          },
+          "response": [
+            {
+              "name": "Empty result is 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?name=zzz",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "zzz"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 0,\n  \"totalPages\": 0,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Sort by name descending",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Names descending', () => {",
+                  "  const names = page.items.map((c) => c.name.toLowerCase());",
+                  "  pm.expect(names).to.eql([...names].sort().reverse());",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?sort=-name",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "-name"
+                }
+              ]
+            },
+            "description": "`-name` reverses the order."
+          },
+          "response": [
+            {
+              "name": "Sort by name descending",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?sort=-name",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort",
+                      "value": "-name"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n      \"name\": \"The New York Times\",\n      \"websiteUrl\": \"https://www.nytimes.com\",\n      \"domain\": \"nytimes.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b37-72b5-a0ce-47087bd90d77\",\n      \"name\": \"Stripe, Inc.\",\n      \"websiteUrl\": \"https://stripe.com\",\n      \"domain\": \"stripe.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.543435+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b51-7b98-ad6a-f3c4af2331ed\",\n      \"name\": \"Netflx\",\n      \"websiteUrl\": \"https://www.netflix.com\",\n      \"domain\": \"netflix.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5699032+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n      \"name\": \"Microsoft\",\n      \"websiteUrl\": \"https://www.microsoft.com\",\n      \"domain\": \"microsoft.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n      \"name\": \"International Business Machines\",\n      \"websiteUrl\": \"https://www.ibm.com\",\n      \"domain\": \"ibm.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1e75-7656-9ba7-050b3ff0d8f7\",\n      \"name\": \"Hacker News\",\n      \"websiteUrl\": \"https://news.ycombinator.com\",\n      \"domain\": \"ycombinator.com\",\n      \"createdAt\": \"2026-10-18T01:42:56.3737931+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b4a-71f8-923b-1a703ff6c316\",\n      \"name\": \"Delta Air Lines\",\n      \"websiteUrl\": \"https://www.delta.com\",\n      \"domain\": \"delta.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5623782+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b40-7935-96df-f7ec5a78763e\",\n      \"name\": \"BBC\",\n      \"websiteUrl\": \"https://www.bbc.co.uk\",\n      \"domain\": \"bbc.co.uk\",\n      \"createdAt\": \"2026-10-18T01:42:55.5522633+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 8,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Sort by creation date (newest first)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Newest first', () => {",
+                  "  const dates = page.items.map((c) => Date.parse(c.createdAt));",
+                  "  pm.expect(dates).to.eql([...dates].sort((a, b) => b - a));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?sort=-createdAt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                }
+              ]
+            },
+            "description": "`createdAt` ascending, `-createdAt` descending."
+          },
+          "response": [
+            {
+              "name": "Sort by creation date (newest first)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?sort=-createdAt",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort",
+                      "value": "-createdAt"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1e75-7656-9ba7-050b3ff0d8f7\",\n      \"name\": \"Hacker News\",\n      \"websiteUrl\": \"https://news.ycombinator.com\",\n      \"domain\": \"ycombinator.com\",\n      \"createdAt\": \"2026-10-18T01:42:56.3737931+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b51-7b98-ad6a-f3c4af2331ed\",\n      \"name\": \"Netflx\",\n      \"websiteUrl\": \"https://www.netflix.com\",\n      \"domain\": \"netflix.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5699032+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b4a-71f8-923b-1a703ff6c316\",\n      \"name\": \"Delta Air Lines\",\n      \"websiteUrl\": \"https://www.delta.com\",\n      \"domain\": \"delta.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5623782+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b40-7935-96df-f7ec5a78763e\",\n      \"name\": \"BBC\",\n      \"websiteUrl\": \"https://www.bbc.co.uk\",\n      \"domain\": \"bbc.co.uk\",\n      \"createdAt\": \"2026-10-18T01:42:55.5522633+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b37-72b5-a0ce-47087bd90d77\",\n      \"name\": \"Stripe, Inc.\",\n      \"websiteUrl\": \"https://stripe.com\",\n      \"domain\": \"stripe.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.543435+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n      \"name\": \"The New York Times\",\n      \"websiteUrl\": \"https://www.nytimes.com\",\n      \"domain\": \"nytimes.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n      \"name\": \"International Business Machines\",\n      \"websiteUrl\": \"https://www.ibm.com\",\n      \"domain\": \"ibm.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n      \"name\": \"Microsoft\",\n      \"websiteUrl\": \"https://www.microsoft.com\",\n      \"domain\": \"microsoft.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 8,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Paging — first page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Three items and a next page', () => {",
+                  "  pm.expect(page.items).to.have.lengthOf(3);",
+                  "  pm.expect(page.hasNextPage).to.be.true;",
+                  "  pm.expect(page.hasPreviousPage).to.be.false;",
+                  "  pm.expect(page.totalPages).to.eql(Math.ceil(page.totalCount / 3));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?sort=createdAt&page=1&pageSize=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "Small pages expose the paging metadata."
+          },
+          "response": [
+            {
+              "name": "Paging — first page",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?sort=createdAt&page=1&pageSize=3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort",
+                      "value": "createdAt"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "pageSize",
+                      "value": "3"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n      \"name\": \"Microsoft\",\n      \"websiteUrl\": \"https://www.microsoft.com\",\n      \"domain\": \"microsoft.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n      \"name\": \"International Business Machines\",\n      \"websiteUrl\": \"https://www.ibm.com\",\n      \"domain\": \"ibm.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n      \"name\": \"The New York Times\",\n      \"websiteUrl\": \"https://www.nytimes.com\",\n      \"domain\": \"nytimes.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\"\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 3,\n  \"totalCount\": 8,\n  \"totalPages\": 3,\n  \"hasNextPage\": true,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Paging — second page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Has a previous page', () => {",
+                  "  pm.expect(page.page).to.eql(2);",
+                  "  pm.expect(page.hasPreviousPage).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?sort=createdAt&page=2&pageSize=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "The next page continues where the first stopped."
+          },
+          "response": [
+            {
+              "name": "Paging — second page",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?sort=createdAt&page=2&pageSize=3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort",
+                      "value": "createdAt"
+                    },
+                    {
+                      "key": "page",
+                      "value": "2"
+                    },
+                    {
+                      "key": "pageSize",
+                      "value": "3"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b37-72b5-a0ce-47087bd90d77\",\n      \"name\": \"Stripe, Inc.\",\n      \"websiteUrl\": \"https://stripe.com\",\n      \"domain\": \"stripe.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.543435+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b40-7935-96df-f7ec5a78763e\",\n      \"name\": \"BBC\",\n      \"websiteUrl\": \"https://www.bbc.co.uk\",\n      \"domain\": \"bbc.co.uk\",\n      \"createdAt\": \"2026-10-18T01:42:55.5522633+00:00\"\n    },\n    {\n      \"id\": \"01a14cad-1b4a-71f8-923b-1a703ff6c316\",\n      \"name\": \"Delta Air Lines\",\n      \"websiteUrl\": \"https://www.delta.com\",\n      \"domain\": \"delta.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5623782+00:00\"\n    }\n  ],\n  \"page\": 2,\n  \"pageSize\": 3,\n  \"totalCount\": 8,\n  \"totalPages\": 3,\n  \"hasNextPage\": true,\n  \"hasPreviousPage\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Paging — page past the end",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('No items', () => pm.expect(page.items).to.be.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?page=99&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "99"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Still a 200, with no items."
+          },
+          "response": [
+            {
+              "name": "Paging — page past the end",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?page=99&pageSize=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "99"
+                    },
+                    {
+                      "key": "pageSize",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [],\n  \"page\": 99,\n  \"pageSize\": 10,\n  \"totalCount\": 8,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Relevance search",
+      "description": "GET /companies?q=… scores every candidate over name and domain (exact > prefix > word > fuzzy), orders by `relevanceScore` (0–1) and drops weak matches.",
+      "item": [
+        {
+          "name": "Search \"micro\" (prefix match)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Microsoft is the top result', () => pm.expect(page.items[0].name).to.eql('Microsoft'));",
+                  "pm.test('Ordered by relevanceScore', () => {",
+                  "  const scores = page.items.map((c) => c.relevanceScore);",
+                  "  scores.forEach((s) => pm.expect(s).to.be.within(0, 1));",
+                  "  pm.expect(scores).to.eql([...scores].sort((a, b) => b - a));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=micro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "micro"
+                }
+              ]
+            },
+            "description": "Results carry a `relevanceScore` and are ordered by it."
+          },
+          "response": [
+            {
+              "name": "Search \"micro\" (prefix match)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=micro",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "micro"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1abc-756d-8759-3688873be9c1\",\n      \"name\": \"Microsoft\",\n      \"websiteUrl\": \"https://www.microsoft.com\",\n      \"domain\": \"microsoft.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.4207599+00:00\",\n      \"relevanceScore\": 0.85\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search by domain (\"ycombinator\")",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Hacker News is found', () => pm.expect(page.items[0].name).to.eql('Hacker News'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=ycombinator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "ycombinator"
+                }
+              ]
+            },
+            "description": "The domain counts as much as the name."
+          },
+          "response": [
+            {
+              "name": "Search by domain (\"ycombinator\")",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=ycombinator",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "ycombinator"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1e75-7656-9ba7-050b3ff0d8f7\",\n      \"name\": \"Hacker News\",\n      \"websiteUrl\": \"https://news.ycombinator.com\",\n      \"domain\": \"ycombinator.com\",\n      \"createdAt\": \"2026-10-18T01:42:56.3737931+00:00\",\n      \"relevanceScore\": 0.95\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search with a typo (\"netflix\")",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Netflx is found', () => pm.expect(page.items.map((c) => c.name)).to.include('Netflx'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=netflix",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "netflix"
+                }
+              ]
+            },
+            "description": "Fuzzy matching finds \"Netflx\"."
+          },
+          "response": [
+            {
+              "name": "Search with a typo (\"netflix\")",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=netflix",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "netflix"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b51-7b98-ad6a-f3c4af2331ed\",\n      \"name\": \"Netflx\",\n      \"websiteUrl\": \"https://www.netflix.com\",\n      \"domain\": \"netflix.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5699032+00:00\",\n      \"relevanceScore\": 0.95\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search combined with a filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Only the filtered company', () => pm.expect(page.items.map((c) => c.domain)).to.eql(['nytimes.com']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=times&domain=nytimes.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "times"
+                },
+                {
+                  "key": "domain",
+                  "value": "nytimes.com"
+                }
+              ]
+            },
+            "description": "`q` ranks within the filtered set."
+          },
+          "response": [
+            {
+              "name": "Search combined with a filter",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=times&domain=nytimes.com",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "times"
+                    },
+                    {
+                      "key": "domain",
+                      "value": "nytimes.com"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b2e-74a3-bb48-9682f07ad4fd\",\n      \"name\": \"The New York Times\",\n      \"websiteUrl\": \"https://www.nytimes.com\",\n      \"domain\": \"nytimes.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5347038+00:00\",\n      \"relevanceScore\": 0.7\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 1,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search sorted by name instead of relevance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Names ascending', () => {",
+                  "  const names = page.items.map((c) => c.name.toLowerCase());",
+                  "  pm.expect(names).to.eql([...names].sort());",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=a&sort=name",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "a"
+                },
+                {
+                  "key": "sort",
+                  "value": "name"
+                }
+              ]
+            },
+            "description": "An explicit `sort` overrides relevance ordering."
+          },
+          "response": [
+            {
+              "name": "Search sorted by name instead of relevance",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=a&sort=name",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "a"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "name"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01a14cad-1b4a-71f8-923b-1a703ff6c316\",\n      \"name\": \"Delta Air Lines\",\n      \"websiteUrl\": \"https://www.delta.com\",\n      \"domain\": \"delta.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.5623782+00:00\",\n      \"relevanceScore\": 0.7\n    },\n    {\n      \"id\": \"01a14cad-1e75-7656-9ba7-050b3ff0d8f7\",\n      \"name\": \"Hacker News\",\n      \"websiteUrl\": \"https://news.ycombinator.com\",\n      \"domain\": \"ycombinator.com\",\n      \"createdAt\": \"2026-10-18T01:42:56.3737931+00:00\",\n      \"relevanceScore\": 0.6\n    },\n    {\n      \"id\": \"01a14cad-1b25-7dab-8ee7-dce82f5a5b74\",\n      \"name\": \"International Business Machines\",\n      \"websiteUrl\": \"https://www.ibm.com\",\n      \"domain\": \"ibm.com\",\n      \"createdAt\": \"2026-10-18T01:42:55.525826+00:00\",\n      \"relevanceScore\": 0.6\n    }\n  ],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 3,\n  \"totalPages\": 1,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search with no matches",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('Body is a page envelope', () => {",
+                  "  pm.expect(page).to.include.all.keys('items', 'page', 'pageSize', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage');",
+                  "  pm.expect(page.items).to.be.an('array');",
+                  "});",
+                  "pm.test('Empty page', () => pm.expect(page.items).to.be.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=qwertyuiop",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "qwertyuiop"
+                }
+              ]
+            },
+            "description": "Still a 200 with empty `items`."
+          },
+          "response": [
+            {
+              "name": "Search with no matches",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=qwertyuiop",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "qwertyuiop"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"items\": [],\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"totalCount\": 0,\n  \"totalPages\": 0,\n  \"hasNextPage\": false,\n  \"hasPreviousPage\": false\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. List and search — errors",
+      "description": "Invalid query parameters → **400** problem details naming the parameter.",
+      "item": [
+        {
+          "name": "400 — unknown sort key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'sort' with code Search.Sort.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'sort');",
+                  "  pm.expect(e, 'error for sort').to.exist;",
+                  "  pm.expect(e.code).to.eql('Search.Sort.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?sort=website",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "website"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 — unknown sort key",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?sort=website",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort",
+                      "value": "website"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000015\",\n  \"detail\": \"Sort must be one of: relevance, name, -name, createdAt, -createdAt.\",\n  \"errors\": [\n    {\n      \"name\": \"sort\",\n      \"reason\": \"Sort must be one of: relevance, name, -name, createdAt, -createdAt.\",\n      \"code\": \"Search.Sort.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — relevance sort without q",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'sort' with code Search.Sort.RelevanceRequiresQuery\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'sort');",
+                  "  pm.expect(e, 'error for sort').to.exist;",
+                  "  pm.expect(e.code).to.eql('Search.Sort.RelevanceRequiresQuery');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?sort=relevance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "relevance"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 — relevance sort without q",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?sort=relevance",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort",
+                      "value": "relevance"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000016\",\n  \"detail\": \"Sort 'relevance' requires a search query 'q'.\",\n  \"errors\": [\n    {\n      \"name\": \"sort\",\n      \"reason\": \"Sort 'relevance' requires a search query 'q'.\",\n      \"code\": \"Search.Sort.RelevanceRequiresQuery\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — page below 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'page' with code Search.Page.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'page');",
+                  "  pm.expect(e, 'error for page').to.exist;",
+                  "  pm.expect(e.code).to.eql('Search.Page.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?page=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 — page below 1",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?page=0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000016\",\n  \"detail\": \"Page must be 1 or greater.\",\n  \"errors\": [\n    {\n      \"name\": \"page\",\n      \"reason\": \"Page must be 1 or greater.\",\n      \"code\": \"Search.Page.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — page size above 100",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'pageSize' with code Search.PageSize.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'pageSize');",
+                  "  pm.expect(e, 'error for pageSize').to.exist;",
+                  "  pm.expect(e.code).to.eql('Search.PageSize.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?pageSize=101",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "pageSize",
+                  "value": "101"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 — page size above 100",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?pageSize=101",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "pageSize",
+                      "value": "101"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000017\",\n  \"detail\": \"Page size must be between 1 and 100.\",\n  \"errors\": [\n    {\n      \"name\": \"pageSize\",\n      \"reason\": \"Page size must be between 1 and 100.\",\n      \"code\": \"Search.PageSize.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — non-numeric page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'page'\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'page');",
+                  "  pm.expect(e, 'error for page').to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?page=abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "abc"
+                }
+              ]
+            },
+            "description": "Binding errors use the same problem shape."
+          },
+          "response": [
+            {
+              "name": "400 — non-numeric page",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?page=abc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "abc"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000017\",\n  \"detail\": \"Value [abc] is not valid for a [Int32] property!\",\n  \"errors\": [\n    {\n      \"name\": \"page\",\n      \"reason\": \"Value [abc] is not valid for a [Int32] property!\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — invalid domain filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'domain' with code Search.Domain.Invalid\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'domain');",
+                  "  pm.expect(e, 'error for domain').to.exist;",
+                  "  pm.expect(e.code).to.eql('Search.Domain.Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?domain=!!",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "domain",
+                  "value": "!!"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 — invalid domain filter",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?domain=!!",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "domain",
+                      "value": "!!"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB539:00000018\",\n  \"detail\": \"Domain must look like 'example.com' or 'example'.\",\n  \"errors\": [\n    {\n      \"name\": \"domain\",\n      \"reason\": \"Domain must look like 'example.com' or 'example'.\",\n      \"code\": \"Search.Domain.Invalid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — search term too long",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "const p = pm.response.json();",
+                  "pm.test('Problem details (application/problem+json)', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(p.status).to.eql(400);",
+                  "  pm.expect(p.detail).to.be.a('string').and.not.empty;",
+                  "  pm.expect(p.errors).to.be.an('array').and.not.empty;",
+                  "});",
+                  "pm.test(\"Error on field 'q' with code Search.Q.TooLong\", () => {",
+                  "  const e = p.errors.find((x) => x.name === 'q');",
+                  "  pm.expect(e, 'error for q').to.exist;",
+                  "  pm.expect(e.code).to.eql('Search.Q.TooLong');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies?q=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 — search term too long",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/companies?q=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1\",\n  \"title\": \"Validation failed\",\n  \"status\": 400,\n  \"instance\": \"/api/v1/companies\",\n  \"traceId\": \"0HNPCN3JRB53A:00000018\",\n  \"detail\": \"Search query must be at most 200 characters.\",\n  \"errors\": [\n    {\n      \"name\": \"q\",\n      \"reason\": \"Search query must be at most 200 characters.\",\n      \"code\": \"Search.Q.TooLong\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Responds within 5 s', () => pm.expect(pm.response.responseTime).to.be.below(5000));",
+          "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/application\\/(problem\\+)?json/));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1"
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "ibmId",
+      "value": ""
+    }
+  ]
+}
